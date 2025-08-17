@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk Park App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .btn { @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200; }
+        .btn-primary { @apply btn bg-blue-600 text-white hover:bg-blue-700; }
+        .btn-secondary { @apply btn bg-gray-200 text-gray-800 hover:bg-gray-300; }
+        .card { @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6; }
+        .badge { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium; }
+        .badge-new { @apply badge bg-blue-100 text-blue-800; }
+        .badge-assigned { @apply badge bg-yellow-100 text-yellow-800; }
+        .badge-progress { @apply badge bg-purple-100 text-purple-800; }
+        .badge-resolved { @apply badge bg-green-100 text-green-800; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen">
+        <!-- Loading -->
+        <div id="loading" class="flex items-center justify-center min-h-screen">
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p class="text-gray-600">Загрузка...</p>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="main" class="hidden">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b border-gray-200">
+                <div class="max-w-7xl mx-auto px-4 py-4">
+                    <div class="flex justify-between items-center">
+                        <h1 class="text-xl font-semibold text-gray-900">Helpdesk Park</h1>
+                        <div class="flex items-center space-x-4">
+                            <button id="notifications" class="p-2 text-gray-400 hover:text-gray-500">
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M9 11h.01M9 8h.01"></path>
+                                </svg>
+                            </button>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <span id="userInitial" class="text-white text-sm font-medium">U</span>
+                                </div>
+                                <span id="userName" class="text-sm text-gray-700">Пользователь</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Navigation -->
+            <nav class="bg-white border-b border-gray-200">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="flex space-x-8">
+                        <button class="nav-item active" data-tab="tickets">Заявки</button>
+                        <button class="nav-item" data-tab="create">Создать</button>
+                        <button class="nav-item" data-tab="stats">Статистика</button>
+                        <button class="nav-item" data-tab="profile">Профиль</button>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Content -->
+            <main class="max-w-7xl mx-auto px-4 py-6">
+                <!-- Tickets Tab -->
+                <div id="tickets-tab" class="tab-content">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Заявки</h2>
+                        <button id="createTicketBtn" class="btn-primary">Создать заявку</button>
+                    </div>
+                    
+                    <div class="grid gap-4">
+                        <div class="card">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="text-lg font-medium text-gray-900">Поломка карусели "Вихрь"</h3>
+                                <div class="flex space-x-2">
+                                    <span class="badge-new">Новая</span>
+                                    <span class="badge bg-orange-100 text-orange-800">Высокий</span>
+                                </div>
+                            </div>
+                            <p class="text-gray-600 mb-4">Карусель не запускается, слышен скрежет в механизме</p>
+                            <div class="flex items-center justify-between text-sm text-gray-500">
+                                <div class="flex items-center space-x-4">
+                                    <span>📍 Карусель "Вихрь"</span>
+                                    <span>👤 Назначен: Алексей Сидоров</span>
+                                </div>
+                                <span>🕐 2 часа назад</span>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="text-lg font-medium text-gray-900">Проблема с освещением</h3>
+                                <div class="flex space-x-2">
+                                    <span class="badge-progress">В работе</span>
+                                    <span class="badge bg-blue-100 text-blue-800">Средний</span>
+                                </div>
+                            </div>
+                            <p class="text-gray-600 mb-4">Не работает освещение на американских горках</p>
+                            <div class="flex items-center justify-between text-sm text-gray-500">
+                                <div class="flex items-center space-x-4">
+                                    <span>📍 Американские горки</span>
+                                    <span>👤 Назначен: Иван Петров</span>
+                                </div>
+                                <span>🕐 1 час назад</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Create Tab -->
+                <div id="create-tab" class="tab-content hidden">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Создать заявку</h2>
+                    <div class="card max-w-2xl">
+                        <form id="createTicketForm" class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Заголовок</label>
+                                <input type="text" id="title" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Краткое описание проблемы" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Описание</label>
+                                <textarea id="description" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Подробное описание проблемы" required></textarea>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Служба</label>
+                                    <select id="service" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                        <option value="">Выберите службу</option>
+                                        <option value="tech">Техническая служба</option>
+                                        <option value="security">Служба безопасности</option>
+                                        <option value="cleaning">Служба уборки</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Приоритет</label>
+                                    <select id="priority" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                        <option value="low">Низкий</option>
+                                        <option value="medium" selected>Средний</option>
+                                        <option value="high">Высокий</option>
+                                        <option value="critical">Критический</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="flex justify-end space-x-4">
+                                <button type="button" id="cancelBtn" class="btn-secondary">Отмена</button>
+                                <button type="submit" class="btn-primary">Создать заявку</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Stats Tab -->
+                <div id="stats-tab" class="tab-content hidden">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Статистика</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="card">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Общие показатели</h3>
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Всего заявок:</span>
+                                    <span class="font-semibold">38</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Активных:</span>
+                                    <span class="font-semibold">16</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Среднее время решения:</span>
+                                    <span class="font-semibold">2ч 15м</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">SLA соблюдается:</span>
+                                    <span class="font-semibold text-green-600">85%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Tab -->
+                <div id="profile-tab" class="tab-content hidden">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Профиль</h2>
+                    <div class="card max-w-2xl">
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Основная информация</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Имя</label>
+                                        <p id="profileName" class="text-gray-900">Загрузка...</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Роль</label>
+                                        <p id="profileRole" class="text-gray-900">Загрузка...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Telegram WebApp инициализация
+        let tg = null;
+        let currentUser = null;
+
+        // Инициализация приложения
+        function initApp() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                tg = window.Telegram.WebApp;
+                tg.ready();
+                
+                // Настраиваем тему
+                if (tg.colorScheme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                }
+                
+                // Получаем информацию о пользователе
+                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    currentUser = tg.initDataUnsafe.user;
+                    updateUserInfo();
+                }
+                
+                console.log('Telegram WebApp initialized');
+            }
+            
+            // Показываем основное приложение
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('main').classList.remove('hidden');
+        }
+
+        // Обновление информации о пользователе
+        function updateUserInfo() {
+            if (currentUser) {
+                const initial = currentUser.first_name ? currentUser.first_name.charAt(0) : 'U';
+                const name = currentUser.first_name || 'Пользователь';
+                
+                document.getElementById('userInitial').textContent = initial;
+                document.getElementById('userName').textContent = name;
+                document.getElementById('profileName').textContent = name;
+                document.getElementById('profileRole').textContent = 'Сотрудник';
+            }
+        }
+
+        // Навигация по табам
+        function showTab(tabName) {
+            // Скрываем все табы
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Убираем активный класс со всех кнопок
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active', 'text-blue-600', 'border-blue-500');
+                item.classList.add('text-gray-500', 'border-transparent');
+            });
+            
+            // Показываем нужный таб
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            
+            // Активируем кнопку
+            event.target.classList.add('active', 'text-blue-600', 'border-blue-500');
+            event.target.classList.remove('text-gray-500', 'border-transparent');
+        }
+
+        // Обработчики событий
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+            
+            // Навигация
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const tab = this.dataset.tab;
+                    showTab(tab);
+                });
+            });
+            
+            // Создание заявки
+            document.getElementById('createTicketForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const title = document.getElementById('title').value;
+                const description = document.getElementById('description').value;
+                const service = document.getElementById('service').value;
+                const priority = document.getElementById('priority').value;
+                
+                // Здесь будет отправка на backend
+                console.log('Creating ticket:', { title, description, service, priority });
+                
+                // Показываем уведомление
+                if (tg && tg.showAlert) {
+                    tg.showAlert('Заявка создана успешно!');
+                } else {
+                    alert('Заявка создана успешно!');
+                }
+                
+                // Переключаемся на таб заявок
+                showTab('tickets');
+                this.reset();
+            });
+            
+            // Кнопка отмены
+            document.getElementById('cancelBtn').addEventListener('click', function() {
+                showTab('tickets');
+            });
+            
+            // Кнопка создания заявки
+            document.getElementById('createTicketBtn').addEventListener('click', function() {
+                showTab('create');
+            });
+        });
+
+        // Стили для навигации
+        const style = document.createElement('style');
+        style.textContent = `
+            .nav-item {
+                @apply py-2 px-1 border-b-2 font-medium text-sm cursor-pointer;
+            }
+            .nav-item.active {
+                @apply text-blue-600 border-blue-500;
+            }
+            .nav-item:not(.active) {
+                @apply text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

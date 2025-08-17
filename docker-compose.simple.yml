@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=helpdesk
+      - POSTGRES_USER=helpdesk
+      - POSTGRES_PASSWORD=helpdesk123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  # Backend (будем запускать локально)
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile.simple
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - postgres
+  #     - redis
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    driver: bridge

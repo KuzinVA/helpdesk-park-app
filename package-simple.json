@@ -1,0 +1,16 @@
+{
+  "name": "helpdesk-webhook",
+  "version": "1.0.0",
+  "description": "Простой webhook сервер для Telegram бота",
+  "main": "simple-webhook.js",
+  "scripts": {
+    "start": "node simple-webhook.js",
+    "dev": "node --watch simple-webhook.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

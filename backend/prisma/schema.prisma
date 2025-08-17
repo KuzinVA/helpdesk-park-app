@@ -1,0 +1,293 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  EMPLOYEE
+  EXECUTOR
+  SERVICE_LEADER
+  ADMIN
+}
+
+enum TicketStatus {
+  NEW
+  ASSIGNED
+  IN_PROGRESS
+  ON_HOLD
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AttachmentKind {
+  PROBLEM_BEFORE
+  RESULT_AFTER
+  OTHER
+}
+
+enum NotificationType {
+  ASSIGNED
+  STATUS_CHANGED
+  COMMENT_ADDED
+  ATTACHMENT_ADDED
+  SLA_WARNING
+  SLA_BREACH
+}
+
+enum NotificationChannel {
+  TELEGRAM
+  IN_APP
+  BOTH
+}
+
+model User {
+  id                String   @id @default(cuid())
+  telegramId        String   @unique
+  telegramUsername  String?
+  firstName         String
+  lastName          String?
+  phone             String?
+  email             String?
+  role              UserRole @default(EMPLOYEE)
+  serviceId         String?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  service           Service?           @relation(fields: [serviceId], references: [id])
+  createdTickets    Ticket[]           @relation("CreatedBy")
+  assignedTickets  Ticket[]           @relation("AssignedTo")
+  comments         Comment[]
+  attachments      Attachment[]
+  auditLogs        AuditLog[]
+  notifications    Notification[]
+  preferences      UserPreferences?
+  telegramLink     TelegramLink?
+
+  @@map("users")
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users       User[]
+  tickets     Ticket[]
+  locations   Location[]
+  slaPolicies SlaPolicy[]
+
+  @@map("services")
+}
+
+model Location {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  serviceId   String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  service     Service  @relation(fields: [serviceId], references: [id])
+  tickets     Ticket[]
+
+  @@map("locations")
+}
+
+model Ticket {
+  id          String        @id @default(cuid())
+  title       String
+  description String
+  status      TicketStatus  @default(NEW)
+  priority    TicketPriority @default(MEDIUM)
+  serviceId   String
+  locationId  String
+  createdById String
+  assignedToId String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  assignedAt  DateTime?
+  startedAt   DateTime?
+  resolvedAt  DateTime?
+  closedAt    DateTime?
+  slaDeadline DateTime?
+
+  // Relations
+  service     Service       @relation(fields: [serviceId], references: [id])
+  location   Location      @relation(fields: [locationId], references: [id])
+  createdBy  User          @relation("CreatedBy", fields: [createdById], references: [id])
+  assignedTo User?         @relation("AssignedTo", fields: [assignedToId], references: [id])
+  comments   Comment[]
+  attachments Attachment[]
+  auditLogs  AuditLog[]
+  tags       TicketTag[]
+  slaPolicy  SlaPolicy?    @relation(fields: [serviceId], references: [serviceId])
+
+  @@map("tickets")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  ticketId  String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("comments")
+}
+
+model Attachment {
+  id          String          @id @default(cuid())
+  filename    String
+  originalName String
+  mimeType    String
+  size        Int
+  kind        AttachmentKind  @default(OTHER)
+  telegramFileId String?
+  minioPath   String
+  ticketId    String
+  userId      String
+  createdAt   DateTime        @default(now())
+
+  // Relations
+  ticket      Ticket          @relation(fields: [ticketId], references: [id])
+  user        User            @relation(fields: [userId], references: [id])
+
+  @@map("attachments")
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String   @default("#3B82F6")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  tickets   TicketTag[]
+
+  @@map("tags")
+}
+
+model TicketTag {
+  id       String @id @default(cuid())
+  ticketId String
+  tagId    String
+
+  // Relations
+  ticket   Ticket @relation(fields: [ticketId], references: [id])
+  tag      Tag    @relation(fields: [tagId], references: [id])
+
+  @@unique([ticketId, tagId])
+  @@map("ticket_tags")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  entityType String
+  entityId  String
+  userId    String
+  oldValues Json?
+  newValues Json?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model SlaPolicy {
+  id                    String   @id @default(cuid())
+  serviceId             String   @unique
+  responseTimeMinutes   Int      @default(30)
+  resolveTimeMinutes    Int      @default(240)
+  isActive              Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  service               Service  @relation(fields: [serviceId], references: [id])
+
+  @@map("sla_policies")
+}
+
+model Notification {
+  id        String            @id @default(cuid())
+  type      NotificationType
+  title     String
+  message   String
+  userId    String
+  ticketId  String?
+  isRead    Boolean           @default(false)
+  channels  NotificationChannel[]
+  metadata  Json?
+  createdAt DateTime          @default(now())
+  readAt    DateTime?
+
+  // Relations
+  user      User              @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
+
+model UserPreferences {
+  id                    String                @id @default(cuid())
+  userId                String                @unique
+  notificationChannels  NotificationChannel[] @default([IN_APP])
+  quietHoursStart       String?               @default("22:00")
+  quietHoursEnd         String?               @default("07:00")
+  digestFrequency       String                @default("OFF") // OFF, DAILY, WEEKLY
+  timezone              String                @default("Europe/Moscow")
+  language              String                @default("ru")
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  // Relations
+  user                  User                  @relation(fields: [userId], references: [id])
+
+  @@map("user_preferences")
+}
+
+model TelegramLink {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  chatId    String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("telegram_links")
+}
