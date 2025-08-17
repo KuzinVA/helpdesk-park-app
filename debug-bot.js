@@ -137,25 +137,39 @@ async function getUpdates() {
         console.log(`📨 Получено обновлений: ${updates.length}`);
 
         for (const update of updates) {
-            console.log(`📨 Обрабатываем обновление ID: ${update.update_id}`);
-            
-            if (update.message) {
-                const { chat, text, from } = update.message;
-                console.log(`👤 Сообщение от @${from.username || from.first_name} в чате ${chat.id}: ${text}`);
+            try {
+                console.log(`📨 Обрабатываем обновление ID: ${update.update_id}`);
                 
-                if (text === '/start') {
-                    await handleStart(chat.id, from.username);
-                } else if (text.startsWith('/')) {
-                    await sendMessage(chat.id, `❓ Команда ${text} не реализована. Используйте /start для запуска приложения.`);
+                if (update.message) {
+                    const { chat, text, from } = update.message;
+                    
+                    // Проверяем, что текст существует
+                    if (text) {
+                        console.log(`👤 Сообщение от @${from.username || from.first_name} в чате ${chat.id}: ${text}`);
+                        
+                        if (text === '/start') {
+                            await handleStart(chat.id, from.username);
+                        } else if (text.startsWith('/')) {
+                            await sendMessage(chat.id, `❓ Команда ${text} не реализована. Используйте /start для запуска приложения.`);
+                        }
+                    } else {
+                        console.log(`👤 Сообщение без текста от @${from.username || from.first_name} в чате ${chat.id} (тип: ${update.message.message_type || 'неизвестно'})`);
+                    }
+                } else if (update.callback_query) {
+                    const { data, from, message } = update.callback_query;
+                    console.log(`🔄 Callback от @${from.username || from.first_name}: ${data}`);
+                    
+                    await handleCallback(message.chat.id, data);
                 }
-            } else if (update.callback_query) {
-                const { data, from, message } = update.callback_query;
-                console.log(`🔄 Callback от @${from.username || from.first_name}: ${data}`);
                 
-                await handleCallback(message.chat.id, data);
+                // Увеличиваем offset только при успешной обработке
+                if (update.update_id >= offset) {
+                    offset = update.update_id + 1;
+                }
+            } catch (error) {
+                console.error(`❌ Ошибка при обработке обновления ${update.update_id}: ${error.message}`);
+                // Продолжаем обработку других обновлений
             }
-            
-            offset = update.update_id + 1;
         }
         
     } catch (error) {
@@ -168,11 +182,19 @@ async function runBot() {
     console.log('📱 Отправьте /start боту @helpdeskParkApp_bot');
     console.log('⏰ Проверка обновлений каждые 5 секунд...');
     
-    // Первая проверка
-    await getUpdates();
-    
-    // Периодическая проверка
-    setInterval(getUpdates, 5000);
+            // Первая проверка
+        await getUpdates();
+        
+        // Периодическая проверка
+        setInterval(async () => {
+            try {
+                await getUpdates();
+            } catch (error) {
+                console.error(`❌ Ошибка в периодической проверке: ${error.message}`);
+                // Сбрасываем offset при критических ошибках
+                offset = 0;
+            }
+        }, 5000);
 }
 
 // Обработка сигналов завершения
