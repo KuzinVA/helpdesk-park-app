@@ -66,24 +66,22 @@ async function handleStart(chatId, username = '') {
 
 📱 Нажмите кнопку ниже, чтобы запустить приложение:`;
 
-    const keyboard = {
-        inline_keyboard: [
-            [{
-                text: '🚀 Запустить Helpdesk Park',
-                web_app: {
+            const keyboard = {
+            inline_keyboard: [
+                [{
+                    text: '🚀 Запустить Helpdesk Park',
                     url: 'https://KuzinVA.github.io/helpdesk-park-app/'
-                }
-            }],
-            [{
-                text: '📋 Доступные команды',
-                callback_data: 'commands'
-            }],
-            [{
-                text: 'ℹ️ О приложении',
-                callback_data: 'about'
-            }]
-        ]
-    };
+                }],
+                [{
+                    text: '📋 Доступные команды',
+                    callback_data: 'commands'
+                }],
+                [{
+                    text: 'ℹ️ О приложении',
+                    callback_data: 'about'
+                }]
+            ]
+        };
 
     return await sendMessage(chatId, welcomeText, keyboard);
 }

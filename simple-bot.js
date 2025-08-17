@@ -91,9 +91,7 @@ async function handleStart(chatId, username = '') {
             [
                 {
                     text: '🚀 Запустить Helpdesk Park',
-                                                                    web_app: {
-                            url: 'https://KuzinVA.github.io/helpdesk-park-app/'
-                        }
+                                                                                        url: 'https://KuzinVA.github.io/helpdesk-park-app/'
                 }
             ],
             [

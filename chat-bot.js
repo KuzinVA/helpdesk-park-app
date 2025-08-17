@@ -1,10 +1,12 @@
 const https = require('https');
 
 const BOT_TOKEN = '8465643840:AAEWFjl1h-EY3150NgihSG2HAaVYLci14Rk';
+const TARGET_CHAT_ID = -4896951550; // ID вашего чата
 let offset = 0;
 
-console.log('🤖 Запуск улучшенного бота Helpdesk Park...');
+console.log('🤖 Запуск бота для чата Helpdesk Park...');
 console.log(`🔑 Токен: ${BOT_TOKEN.substring(0, 10)}...`);
+console.log(`💬 Целевой чат ID: ${TARGET_CHAT_ID}`);
 console.log(`🌐 GitHub Pages URL: https://KuzinVA.github.io/helpdesk-park-app/`);
 
 // Функция для выполнения HTTP запросов к Telegram API
@@ -70,10 +72,10 @@ async function sendMessage(chatId, text, keyboard = null) {
         }
 
         const response = await makeRequest('sendMessage', messageData);
-        console.log(`✅ Сообщение отправлено успешно`);
+        console.log(`✅ Сообщение отправлено в чат ${chatId}`);
         return response;
     } catch (error) {
-        console.error(`❌ Ошибка при отправке сообщения: ${error.message}`);
+        console.error(`❌ Ошибка при отправке сообщения в чат ${chatId}: ${error.message}`);
         throw error;
     }
 }
@@ -123,7 +125,7 @@ async function handleStart(chatId, username = '') {
 // Обработчик callback запросов
 async function handleCallback(chatId, callbackData) {
     try {
-        console.log(`🔄 Обрабатываем callback: ${callbackData}`);
+        console.log(`🔄 Обрабатываем callback: ${callbackData} в чате ${chatId}`);
         
         let responseText = '';
         
@@ -182,11 +184,10 @@ async function getUpdates() {
                 
                 if (update.message) {
                     const { chat, text, from } = update.message;
+                    console.log(`👤 Сообщение от @${from.username || from.first_name} в чате ${chat.id}: ${text || 'без текста'}`);
                     
                     // Проверяем, что текст существует
                     if (text) {
-                        console.log(`👤 Сообщение от @${from.username || from.first_name} в чате ${chat.id}: ${text}`);
-                        
                         if (text === '/start') {
                             await handleStart(chat.id, from.username);
                         } else if (text.startsWith('/')) {
@@ -219,12 +220,37 @@ async function getUpdates() {
     }
 }
 
+// Отправка тестового сообщения в целевой чат
+async function sendTestMessage() {
+    try {
+        console.log(`📤 Отправляем тестовое сообщение в чат ${TARGET_CHAT_ID}...`);
+        
+        const testText = `🤖 <b>Бот Helpdesk Park запущен!</b>
+
+💬 Этот чат подключен к системе управления заявками.
+🚀 Отправьте команду /start для запуска приложения.
+
+<b>Статус:</b> ✅ АКТИВЕН
+<b>Версия:</b> 2.2.1
+<b>Чат ID:</b> ${TARGET_CHAT_ID}`;
+
+        await sendMessage(TARGET_CHAT_ID, testText);
+        console.log(`✅ Тестовое сообщение отправлено в чат ${TARGET_CHAT_ID}`);
+        
+    } catch (error) {
+        console.error(`❌ Ошибка при отправке тестового сообщения: ${error.message}`);
+    }
+}
+
 // Основная функция запуска бота
 async function runBot() {
     try {
         console.log('🚀 Бот запущен и ожидает сообщения...');
-        console.log('📱 Отправьте /start боту @helpdeskParkApp_bot');
+        console.log(`📱 Отправьте /start боту @helpdeskParkApp_bot в чате ${TARGET_CHAT_ID}`);
         console.log('⏰ Проверка обновлений каждые 5 секунд...');
+        
+        // Отправляем тестовое сообщение в целевой чат
+        await sendTestMessage();
         
         // Первая проверка
         await getUpdates();
