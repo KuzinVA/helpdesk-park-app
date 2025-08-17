@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk Park - Telegram Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .telegram-button {
+            background: #0088cc;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: background 0.2s;
+        }
+        .telegram-button:hover {
+            background: #006699;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .ticket-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #0088cc;
+        }
+        .priority-high {
+            border-left-color: #dc2626;
+        }
+        .priority-medium {
+            border-left-color: #d97706;
+        }
+        .priority-low {
+            border-left-color: #059669;
+        }
+        .priority-critical {
+            border-left-color: #7c2d12;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-6 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">🚀 Helpdesk Park</h1>
+            <p class="text-lg text-gray-600">Система управления заявками парка аттракционов</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+            <div class="flex flex-wrap justify-center gap-2">
+                <button class="telegram-button" onclick="showPage('dashboard')">📊 Дашборд</button>
+                <button class="telegram-button" onclick="showPage('tickets')">📋 Заявки</button>
+                <button class="telegram-button" onclick="showPage('create')">➕ Создать</button>
+                <button class="telegram-button" onclick="showPage('stats')">📈 Статистика</button>
+                <button class="telegram-button" onclick="showPage('profile')">👤 Профиль</button>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div id="content-area" class="min-h-96">
+            <!-- Dashboard (default) -->
+            <div id="dashboard" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                        <div class="text-3xl font-bold text-blue-600">12</div>
+                        <div class="text-sm text-gray-600">Активных заявок</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                        <div class="text-3xl font-bold text-green-600">8</div>
+                        <div class="text-sm text-gray-600">Решенных сегодня</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                        <div class="text-3xl font-bold text-yellow-600">3</div>
+                        <div class="text-sm text-gray-600">В работе</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                        <div class="text-3xl font-bold text-red-600">1</div>
+                        <div class="text-sm text-gray-600">Критических</div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4">🚨 Последние заявки</h2>
+                    <div class="space-y-3">
+                        <div class="ticket-card priority-high">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-semibold text-lg">Не работает аттракцион "Колесо обозрения"</h3>
+                                    <p class="text-gray-600 mt-1">Аттракцион не запускается, требуется техническое обслуживание</p>
+                                    <div class="flex items-center mt-2 space-x-4 text-sm text-gray-500">
+                                        <span>📍 Главная площадь</span>
+                                        <span>⏰ 2 часа назад</span>
+                                    </div>
+                                </div>
+                                <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">Высокий</span>
+                            </div>
+                        </div>
+
+                        <div class="ticket-card priority-medium">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-semibold text-lg">Проблема с освещением в зоне кафе</h3>
+                                    <p class="text-gray-600 mt-1">Не работает часть освещения, создает неудобства для посетителей</p>
+                                    <div class="flex items-center mt-2 space-x-4 text-sm text-gray-500">
+                                        <span>📍 Зона кафе</span>
+                                        <span>⏰ 1 день назад</span>
+                                    </div>
+                                </div>
+                                <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">Средний</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tickets Page -->
+            <div id="tickets" class="hidden space-y-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4">📋 Все заявки</h2>
+                    <div class="space-y-3">
+                        <div class="ticket-card priority-high">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-semibold text-lg">Не работает аттракцион "Колесо обозрения"</h3>
+                                    <p class="text-gray-600 mt-1">Аттракцион не запускается, требуется техническое обслуживание</p>
+                                    <div class="flex items-center mt-2 space-x-4 text-sm text-gray-500">
+                                        <span>📍 Главная площадь</span>
+                                        <span>⏰ 2 часа назад</span>
+                                        <span>👤 Назначено: Иван Петров</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">Высокий</span>
+                                    <div class="mt-2">
+                                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">В работе</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ticket-card priority-medium">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-semibold text-lg">Проблема с освещением в зоне кафе</h3>
+                                    <p class="text-gray-600 mt-1">Не работает часть освещения, создает неудобства для посетителей</p>
+                                    <div class="flex items-center mt-2 space-x-4 text-sm text-gray-500">
+                                        <span>📍 Зона кафе</span>
+                                        <span>⏰ 1 день назад</span>
+                                        <span>👤 Назначено: Мария Сидорова</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">Средний</span>
+                                    <div class="mt-2">
+                                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">Открыта</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ticket-card priority-low">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-semibold text-lg">Замена информационного стенда</h3>
+                                    <p class="text-gray-600 mt-1">Требуется обновление информации на стенде у входа</p>
+                                    <div class="flex items-center mt-2 space-x-4 text-sm text-gray-500">
+                                        <span>📍 Главный вход</span>
+                                        <span>⏰ 3 дня назад</span>
+                                        <span>👤 Назначено: Алексей Козлов</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">Низкий</span>
+                                    <div class="mt-2">
+                                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">В работе</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Ticket Page -->
+            <div id="create" class="hidden">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4">➕ Создать новую заявку</h2>
+                    <form class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Название заявки</label>
+                            <input type="text" id="ticketTitle" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Краткое описание проблемы">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Описание</label>
+                            <textarea id="ticketDescription" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Подробное описание проблемы"></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Приоритет</label>
+                                <select id="ticketPriority" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="low">Низкий</option>
+                                    <option value="medium">Средний</option>
+                                    <option value="high">Высокий</option>
+                                    <option value="critical">Критический</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Локация</label>
+                                <select id="ticketLocation" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="main-square">Главная площадь</option>
+                                    <option value="cafe-zone">Зона кафе</option>
+                                    <option value="entrance">Главный вход</option>
+                                    <option value="parking">Парковка</option>
+                                    <option value="other">Другое</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Теги (через запятую)</label>
+                            <input type="text" id="ticketTags" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="техника, освещение, безопасность">
+                        </div>
+                        <button type="submit" class="telegram-button w-full" onclick="createTicket()">Создать заявку</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Stats Page -->
+            <div id="stats" class="hidden space-y-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4">📈 Статистика заявок</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="font-medium text-gray-700 mb-3">По статусам</h3>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span>Открытые</span>
+                                    <span class="font-semibold">8</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>В работе</span>
+                                    <span class="font-semibold">3</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Решенные</span>
+                                    <span class="font-semibold">14</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-gray-700 mb-3">По приоритетам</h3>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span>Критические</span>
+                                    <span class="font-semibold">1</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Высокие</span>
+                                    <span class="font-semibold">5</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Средние</span>
+                                    <span class="font-semibold">12</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Низкие</span>
+                                    <span class="font-semibold">7</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="font-medium text-gray-700 mb-3">Время решения заявок</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span>Критические</span>
+                            <span class="font-semibold">2-4 часа</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Высокие</span>
+                            <span class="font-semibold">4-8 часов</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Средние</span>
+                            <span class="font-semibold">1-2 дня</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Низкие</span>
+                            <span class="font-semibold">3-5 дней</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div id="profile" class="hidden">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4">👤 Профиль пользователя</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4">
+                            <img src="https://via.placeholder.com/80" alt="Avatar" class="w-20 h-20 rounded-full">
+                            <div>
+                                <h3 class="text-lg font-semibold">Тестовый Пользователь</h3>
+                                <p class="text-gray-600">@testuser</p>
+                                <p class="text-sm text-gray-500">Оператор системы</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-medium text-gray-700 mb-2">Основная информация</h4>
+                                <div class="space-y-1 text-sm">
+                                    <p><span class="font-medium">ID:</span> 123456789</p>
+                                    <p><span class="font-medium">Роль:</span> Оператор</p>
+                                    <p><span class="font-medium">Доступ:</span> Полный</p>
+                                    <p><span class="font-medium">Последний вход:</span> Сегодня</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-medium text-gray-700 mb-2">Настройки</h4>
+                                <div class="space-y-1 text-sm">
+                                    <p><span class="font-medium">Уведомления:</span> Включены</p>
+                                    <p><span class="font-medium">Язык:</span> Русский</p>
+                                    <p><span class="font-medium">Тема:</span> Авто</p>
+                                    <p><span class="font-medium">Часовой пояс:</span> UTC+3</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-medium text-gray-700 mb-2">Статистика активности</h4>
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <p class="font-medium">Созданных заявок</p>
+                                    <p class="text-2xl font-bold text-blue-600">25</p>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Решенных заявок</p>
+                                    <p class="text-2xl font-bold text-green-600">18</p>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Дней в системе</p>
+                                    <p class="text-2xl font-bold text-purple-600">45</p>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Рейтинг</p>
+                                    <p class="text-2xl font-bold text-yellow-600">4.8</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram WebApp
+        if (window.Telegram?.WebApp) {
+            const tg = window.Telegram.WebApp;
+            
+            // Инициализируем WebApp
+            tg.ready();
+            
+            // Настраиваем тему
+            if (tg.colorScheme === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+            
+            // Настраиваем главную кнопку
+            tg.mainButton.setText('Создать заявку');
+            tg.mainButton.onClick(() => {
+                showPage('create');
+            });
+            tg.mainButton.show();
+            
+            console.log('Telegram WebApp инициализирован');
+        }
+
+        // Функция для переключения страниц
+        function showPage(pageName) {
+            // Скрываем все страницы
+            const pages = ['dashboard', 'tickets', 'create', 'stats', 'profile'];
+            pages.forEach(page => {
+                const element = document.getElementById(page);
+                if (element) {
+                    element.classList.add('hidden');
+                }
+            });
+            
+            // Показываем выбранную страницу
+            const selectedPage = document.getElementById(pageName);
+            if (selectedPage) {
+                selectedPage.classList.remove('hidden');
+            }
+            
+            // Обновляем главную кнопку в зависимости от страницы
+            if (window.Telegram?.WebApp) {
+                const tg = window.Telegram.WebApp;
+                
+                switch (pageName) {
+                    case 'create':
+                        tg.mainButton.setText('Сохранить заявку');
+                        tg.mainButton.onClick(() => createTicket());
+                        break;
+                    case 'tickets':
+                        tg.mainButton.setText('Обновить');
+                        tg.mainButton.onClick(() => location.reload());
+                        break;
+                    case 'stats':
+                        tg.mainButton.setText('Обновить статистику');
+                        tg.mainButton.onClick(() => location.reload());
+                        break;
+                    case 'profile':
+                        tg.mainButton.setText('Сохранить настройки');
+                        tg.mainButton.onClick(() => saveProfile());
+                        break;
+                    default:
+                        tg.mainButton.setText('Создать заявку');
+                        tg.mainButton.onClick(() => showPage('create'));
+                }
+                
+                tg.mainButton.show();
+            }
+        }
+
+        // Функция создания заявки
+        function createTicket() {
+            const title = document.getElementById('ticketTitle').value;
+            const description = document.getElementById('ticketDescription').value;
+            const priority = document.getElementById('ticketPriority').value;
+            const location = document.getElementById('ticketLocation').value;
+            const tags = document.getElementById('ticketTags').value;
+            
+            if (!title || !description) {
+                alert('Пожалуйста, заполните название и описание заявки');
+                return;
+            }
+            
+            // Здесь будет отправка данных на сервер
+            console.log('Создание заявки:', { title, description, priority, location, tags });
+            
+            // Показываем уведомление об успехе
+            if (window.Telegram?.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.showAlert('✅ Заявка успешно создана!');
+                
+                // Очищаем форму
+                document.getElementById('ticketTitle').value = '';
+                document.getElementById('ticketDescription').value = '';
+                document.getElementById('ticketPriority').value = 'low';
+                document.getElementById('ticketLocation').value = 'main-square';
+                document.getElementById('ticketTags').value = '';
+                
+                // Переходим на страницу заявок
+                showPage('tickets');
+            }
+        }
+
+        // Функция сохранения профиля
+        function saveProfile() {
+            if (window.Telegram?.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.showAlert('✅ Настройки профиля сохранены!');
+            }
+        }
+
+        // Инициализация при загрузке страницы
+        window.addEventListener('load', function() {
+            console.log('Helpdesk Park загружен');
+            
+            // Показываем дашборд по умолчанию
+            showPage('dashboard');
+        });
+    </script>
+</body>
+</html>

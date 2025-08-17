@@ -91,9 +91,9 @@ async function handleStart(chatId, username = '') {
             [
                 {
                     text: '🚀 Запустить Helpdesk Park',
-                    web_app: {
-                        url: 'http://localhost:3000'
-                    }
+                                            web_app: {
+                            url: 'http://localhost:8080'
+                        }
                 }
             ],
             [
