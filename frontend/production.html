@@ -3,380 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Helpdesk Park - Telegram Mini App</title>
+    <title>Helpdesk Park - Система управления заявками</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        .telegram-theme {
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+        }
         .telegram-button {
-            background: #0088cc;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 5px;
-            transition: background 0.2s;
+            background-color: var(--tg-theme-button-color, #2481cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
         }
-        .telegram-button:hover {
-            background: #006699;
+        .telegram-secondary {
+            background-color: var(--tg-theme-secondary-bg-color, #f1f1f1);
         }
-        .status {
-            padding: 10px;
-            border-radius: 6px;
-            margin: 10px 0;
-            font-weight: 500;
-        }
-        .status.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .status.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .status.info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-        .ticket-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 15px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border-left: 4px solid #0088cc;
-        }
-        .priority-high {
-            border-left-color: #dc2626;
-        }
-        .priority-medium {
-            border-left-color: #d97706;
-        }
-        .priority-low {
-            border-left-color: #059669;
-        }
-        .priority-critical {
-            border-left-color: #7c2d12;
-        }
+        .status-new { @apply bg-blue-100 text-blue-800 border-blue-200; }
+        .status-in-progress { @apply bg-yellow-100 text-yellow-800 border-yellow-200; }
+        .status-resolved { @apply bg-green-100 text-green-800 border-green-200; }
+        .status-closed { @apply bg-gray-100 text-gray-800 border-gray-200; }
+        .priority-low { @apply bg-green-100 text-green-800 border-green-200; }
+        .priority-medium { @apply bg-yellow-100 text-yellow-800 border-yellow-200; }
+        .priority-high { @apply bg-red-100 text-red-800 border-red-200; }
+        .priority-critical { @apply bg-purple-100 text-purple-800 border-purple-200; }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <div class="container mx-auto px-4 py-6 max-w-4xl">
-        <!-- Header -->
-        <div class="text-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">🚀 Helpdesk Park</h1>
-            <p class="text-lg text-gray-600">Система управления заявками парка аттракционов</p>
-        </div>
-
-        <!-- Navigation -->
-        <div class="bg-white rounded-lg shadow-md p-4 mb-6">
-            <div class="flex flex-wrap justify-center gap-2">
-                <button class="telegram-button" onclick="showPage('dashboard')">📊 Дашборд</button>
-                <button class="telegram-button" onclick="showPage('tickets')">📋 Заявки</button>
-                <button class="telegram-button" onclick="showPage('create')">➕ Создать</button>
-                <button class="telegram-button" onclick="showPage('stats')">📈 Статистика</button>
-                <button class="telegram-button" onclick="showPage('profile')">👤 Профиль</button>
+<body class="telegram-theme min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 shadow-lg">
+        <div class="flex items-center justify-between">
+            <h1 class="text-xl font-bold">🏢 Helpdesk Park</h1>
+            <div class="flex items-center space-x-2">
+                <span id="userInfo" class="text-sm">Загрузка...</span>
             </div>
         </div>
+    </header>
 
-        <!-- Content Area -->
-        <div id="content-area" class="min-h-96">
-            <!-- Dashboard (default) -->
-            <div id="dashboard" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                        <div class="text-3xl font-bold text-blue-600">12</div>
-                        <div class="text-sm text-gray-600">Активных заявок</div>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                        <div class="text-3xl font-bold text-green-600">8</div>
-                        <div class="text-sm text-gray-600">Решенных сегодня</div>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                        <div class="text-3xl font-bold text-yellow-600">3</div>
-                        <div class="text-sm text-gray-600">В работе</div>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                        <div class="text-3xl font-bold text-red-600">1</div>
-                        <div class="text-sm text-gray-600">Критических</div>
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md p-2">
+        <div class="flex space-x-2 overflow-x-auto">
+            <button onclick="showPage('dashboard')" class="nav-btn px-4 py-2 rounded-lg bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors">
+                📊 Дашборд
+            </button>
+            <button onclick="showPage('tickets')" class="nav-btn px-4 py-2 rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors">
+                📋 Заявки
+            </button>
+            <button onclick="showPage('create')" class="nav-btn px-4 py-2 rounded-lg bg-green-100 text-green-800 hover:bg-green-200 transition-colors">
+                ➕ Создать
+            </button>
+            <button onclick="showPage('assignees')" class="nav-btn px-4 py-2 rounded-lg bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors">
+                👥 Ответственные
+            </button>
+            <button onclick="showPage('stats')" class="nav-btn px-4 py-2 rounded-lg bg-orange-100 text-orange-800 hover:bg-orange-200 transition-colors">
+                📈 Статистика
+            </button>
+            <button onclick="showPage('profile')" class="nav-btn px-4 py-2 rounded-lg bg-indigo-100 text-indigo-800 hover:bg-indigo-200 transition-colors">
+                👤 Профиль
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="p-4 max-w-6xl mx-auto">
+        <!-- Dashboard Page -->
+        <div id="dashboard" class="page">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-blue-500">
+                    <h3 class="text-lg font-semibold text-gray-700">Новые</h3>
+                    <p class="text-3xl font-bold text-blue-600" id="newTickets">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-yellow-500">
+                    <h3 class="text-lg font-semibold text-gray-700">В работе</h3>
+                    <p class="text-3xl font-bold text-yellow-600" id="inProgressTickets">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-green-500">
+                    <h3 class="text-lg font-semibold text-gray-700">Решено</h3>
+                    <p class="text-3xl font-bold text-green-600" id="resolvedTickets">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-gray-500">
+                    <h3 class="text-lg font-semibold text-gray-700">Всего</h3>
+                    <p class="text-3xl font-bold text-gray-600" id="totalTickets">0</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-4">Последние заявки</h3>
+                    <div id="recentTickets" class="space-y-3">
+                        <!-- Recent tickets will be loaded here -->
                     </div>
                 </div>
-
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-semibold mb-4">🚨 Последние заявки</h2>
-                    <div class="space-y-3">
-                        <div class="ticket-card priority-high">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h3 class="font-semibold text-lg">Не работает аттракцион "Колесо обозрения"</h3>
-                                    <p class="text-gray-600 mt-1">Аттракцион не запускается, требуется техническое обслуживание</p>
-                                    <div class="flex items-center mt-2 space-x-4 text-sm text-gray-500">
-                                        <span>📍 Главная площадь</span>
-                                        <span>⏰ 2 часа назад</span>
-                                    </div>
-                                </div>
-                                <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">Высокий</span>
-                            </div>
-                        </div>
-
-                        <div class="ticket-card priority-medium">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h3 class="font-semibold text-lg">Проблема с освещением в зоне кафе</h3>
-                                    <p class="text-gray-600 mt-1">Не работает часть освещения, создает неудобства для посетителей</p>
-                                    <div class="flex items-center mt-2 space-x-4 text-sm text-gray-500">
-                                        <span>📍 Зона кафе</span>
-                                        <span>⏰ 1 день назад</span>
-                                    </div>
-                                </div>
-                                <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">Средний</span>
-                            </div>
-                        </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-4">Мои заявки</h3>
+                    <div id="myTickets" class="space-y-3">
+                        <!-- My tickets will be loaded here -->
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Tickets Page -->
-            <div id="tickets" class="hidden space-y-6">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-semibold mb-4">📋 Все заявки</h2>
-                    <div class="space-y-3">
-                        <div class="ticket-card priority-high">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h3 class="font-semibold text-lg">Не работает аттракцион "Колесо обозрения"</h3>
-                                    <p class="text-gray-600 mt-1">Аттракцион не запускается, требуется техническое обслуживание</p>
-                                    <div class="flex items-center mt-2 space-x-4 text-sm text-gray-500">
-                                        <span>📍 Главная площадь</span>
-                                        <span>⏰ 2 часа назад</span>
-                                        <span>👤 Назначено: Иван Петров</span>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">Высокий</span>
-                                    <div class="mt-2">
-                                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">В работе</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="ticket-card priority-medium">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h3 class="font-semibold text-lg">Проблема с освещением в зоне кафе</h3>
-                                    <p class="text-gray-600 mt-1">Не работает часть освещения, создает неудобства для посетителей</p>
-                                    <div class="flex items-center mt-2 space-x-4 text-sm text-gray-500">
-                                        <span>📍 Зона кафе</span>
-                                        <span>⏰ 1 день назад</span>
-                                        <span>👤 Назначено: Мария Сидорова</span>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">Средний</span>
-                                    <div class="mt-2">
-                                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">Открыта</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="ticket-card priority-low">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h3 class="font-semibold text-lg">Замена информационного стенда</h3>
-                                    <p class="text-gray-600 mt-1">Требуется обновление информации на стенде у входа</p>
-                                    <div class="flex items-center mt-2 space-x-4 text-sm text-gray-500">
-                                        <span>📍 Главный вход</span>
-                                        <span>⏰ 3 дня назад</span>
-                                        <span>👤 Назначено: Алексей Козлов</span>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">Низкий</span>
-                                    <div class="mt-2">
-                                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">В работе</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Tickets Page -->
+        <div id="tickets" class="page hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">📋 Все заявки</h2>
+                <div class="flex space-x-2">
+                    <select id="statusFilter" class="px-3 py-2 border rounded-lg" onchange="filterTickets()">
+                        <option value="">Все статусы</option>
+                        <option value="new">Новые</option>
+                        <option value="in-progress">В работе</option>
+                        <option value="resolved">Решено</option>
+                        <option value="closed">Закрыто</option>
+                    </select>
+                    <select id="priorityFilter" class="px-3 py-2 border rounded-lg" onchange="filterTickets()">
+                        <option value="">Все приоритеты</option>
+                        <option value="low">Низкий</option>
+                        <option value="medium">Средний</option>
+                        <option value="high">Высокий</option>
+                        <option value="critical">Критический</option>
+                    </select>
+                    <select id="assigneeFilter" class="px-3 py-2 border rounded-lg" onchange="filterTickets()">
+                        <option value="">Все ответственные</option>
+                        <!-- Assignees will be loaded here -->
+                    </select>
                 </div>
             </div>
-
-            <!-- Create Ticket Page -->
-            <div id="create" class="hidden">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-semibold mb-4">➕ Создать новую заявку</h2>
-                    <form class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Название заявки</label>
-                            <input type="text" id="ticketTitle" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Краткое описание проблемы">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Описание</label>
-                            <textarea id="ticketDescription" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Подробное описание проблемы"></textarea>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Приоритет</label>
-                                <select id="ticketPriority" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                    <option value="low">Низкий</option>
-                                    <option value="medium">Средний</option>
-                                    <option value="high">Высокий</option>
-                                    <option value="critical">Критический</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Локация</label>
-                                <select id="ticketLocation" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                    <option value="main-square">Главная площадь</option>
-                                    <option value="cafe-zone">Зона кафе</option>
-                                    <option value="entrance">Главный вход</option>
-                                    <option value="parking">Парковка</option>
-                                    <option value="other">Другое</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Теги (через запятую)</label>
-                            <input type="text" id="ticketTags" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="техника, освещение, безопасность">
-                        </div>
-                        <button type="submit" class="telegram-button w-full" onclick="createTicket()">Создать заявку</button>
-                    </form>
-                </div>
+            
+            <div id="ticketsList" class="space-y-4">
+                <!-- Tickets will be loaded here -->
             </div>
+        </div>
 
-            <!-- Stats Page -->
-            <div id="stats" class="hidden space-y-6">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-semibold mb-4">📈 Статистика заявок</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h3 class="font-medium text-gray-700 mb-3">По статусам</h3>
-                            <div class="space-y-2">
-                                <div class="flex justify-between">
-                                    <span>Открытые</span>
-                                    <span class="font-semibold">8</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span>В работе</span>
-                                    <span class="font-semibold">3</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span>Решенные</span>
-                                    <span class="font-semibold">14</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <h3 class="font-medium text-gray-700 mb-3">По приоритетам</h3>
-                            <div class="space-y-2">
-                                <div class="flex justify-between">
-                                    <span>Критические</span>
-                                    <span class="font-semibold">1</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span>Высокие</span>
-                                    <span class="font-semibold">5</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span>Средние</span>
-                                    <span class="font-semibold">12</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span>Низкие</span>
-                                    <span class="font-semibold">7</span>
-                                </div>
-                            </div>
-                        </div>
+        <!-- Create Ticket Page -->
+        <div id="create" class="page hidden">
+            <div class="max-w-2xl mx-auto">
+                <h2 class="text-2xl font-bold mb-6">➕ Создать новую заявку</h2>
+                
+                <form id="createTicketForm" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Заголовок заявки *</label>
+                        <input type="text" id="ticketTitle" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="font-medium text-gray-700 mb-3">Время решения заявок</h3>
-                    <div class="space-y-2">
-                        <div class="flex justify-between">
-                            <span>Критические</span>
-                            <span class="font-semibold">2-4 часа</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Высокие</span>
-                            <span class="font-semibold">4-8 часов</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Средние</span>
-                            <span class="font-semibold">1-2 дня</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Низкие</span>
-                            <span class="font-semibold">3-5 дней</span>
-                        </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Описание *</label>
+                        <textarea id="ticketDescription" rows="4" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
                     </div>
-                </div>
-            </div>
-
-            <!-- Profile Page -->
-            <div id="profile" class="hidden">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-semibold mb-4">👤 Профиль пользователя</h2>
-                    <div class="space-y-4">
-                        <div class="flex items-center space-x-4">
-                            <img src="https://via.placeholder.com/80" alt="Avatar" class="w-20 h-20 rounded-full">
-                            <div>
-                                <h3 class="text-lg font-semibold">Тестовый Пользователь</h3>
-                                <p class="text-gray-600">@testuser</p>
-                                <p class="text-sm text-gray-500">Оператор системы</p>
-                            </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Приоритет *</label>
+                            <select id="ticketPriority" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Выберите приоритет</option>
+                                <option value="low">Низкий</option>
+                                <option value="medium">Средний</option>
+                                <option value="high">Высокий</option>
+                                <option value="critical">Критический</option>
+                            </select>
                         </div>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                <h4 class="font-medium text-gray-700 mb-2">Основная информация</h4>
-                                <div class="space-y-1 text-sm">
-                                    <p><span class="font-medium">ID:</span> 123456789</p>
-                                    <p><span class="font-medium">Роль:</span> Оператор</p>
-                                    <p><span class="font-medium">Доступ:</span> Полный</p>
-                                    <p><span class="font-medium">Последний вход:</span> Сегодня</p>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                <h4 class="font-medium text-gray-700 mb-2">Настройки</h4>
-                                <div class="space-y-1 text-sm">
-                                    <p><span class="font-medium">Уведомления:</span> Включены</p>
-                                    <p><span class="font-medium">Язык:</span> Русский</p>
-                                    <p><span class="font-medium">Тема:</span> Авто</p>
-                                    <p><span class="font-medium">Часовой пояс:</span> UTC+3</p>
-                                </div>
-                            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Категория *</label>
+                            <select id="ticketCategory" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Выберите категорию</option>
+                                <option value="technical">Техническая поддержка</option>
+                                <option value="billing">Биллинг</option>
+                                <option value="feature">Новый функционал</option>
+                                <option value="bug">Ошибка</option>
+                                <option value="other">Другое</option>
+                            </select>
                         </div>
-                        
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <h4 class="font-medium text-gray-700 mb-2">Статистика активности</h4>
-                            <div class="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <p class="font-medium">Созданных заявок</p>
-                                    <p class="text-2xl font-bold text-blue-600">25</p>
-                                </div>
-                                <div>
-                                    <p class="font-medium">Решенных заявок</p>
-                                    <p class="text-2xl font-bold text-green-600">18</p>
-                                </div>
-                                <div>
-                                    <p class="font-medium">Дней в системе</p>
-                                    <p class="text-2xl font-bold text-purple-600">45</p>
-                                </div>
-                                <div>
-                                    <p class="font-medium">Рейтинг</p>
-                                    <p class="text-2xl font-bold text-yellow-600">4.8</p>
-                                </div>
-                            </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Ответственный</label>
+                        <select id="ticketAssignee" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Не назначен</option>
+                            <!-- Assignees will be loaded here -->
+                        </select>
+                    </div>
+                    
+                    <div class="flex space-x-4">
+                        <button type="submit" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                            📝 Создать заявку
+                        </button>
+                        <button type="button" onclick="showPage('tickets')" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                            Отмена
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Assignees Management Page -->
+        <div id="assignees" class="page hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">👥 Управление ответственными</h2>
+                <button onclick="showAddAssigneeModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                    ➕ Добавить ответственного
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="assigneesList">
+                <!-- Assignees will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Stats Page -->
+        <div id="stats" class="page hidden">
+            <h2 class="text-2xl font-bold mb-6">📈 Статистика</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-4">Статистика по статусам</h3>
+                    <canvas id="statusChart" width="400" height="200"></canvas>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-4">Статистика по приоритетам</h3>
+                    <canvas id="priorityChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow-md mt-6">
+                <h3 class="text-lg font-semibold mb-4">Производительность ответственных</h3>
+                <div id="assigneeStats" class="space-y-3">
+                    <!-- Assignee stats will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="profile" class="page hidden">
+            <div class="max-w-2xl mx-auto">
+                <h2 class="text-2xl font-bold mb-6">👤 Профиль пользователя</h2>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-2xl font-bold text-blue-600" id="profileInitials">U</span>
                         </div>
+                        <div>
+                            <h3 class="text-xl font-semibold" id="profileName">Загрузка...</h3>
+                            <p class="text-gray-600" id="profileUsername">@username</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Роль</label>
+                            <p class="text-gray-900" id="profileRole">Загрузка...</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <p class="text-gray-900" id="profileEmail">Загрузка...</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Отдел</label>
+                            <p class="text-gray-900" id="profileDepartment">Загрузка...</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Дата регистрации</label>
+                            <p class="text-gray-900" id="profileRegistration">Загрузка...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md mt-6">
+                    <h3 class="text-lg font-semibold mb-4">Мои заявки</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div>
+                            <p class="text-2xl font-bold text-blue-600" id="myNewTickets">0</p>
+                            <p class="text-sm text-gray-600">Новые</p>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold text-yellow-600" id="myInProgressTickets">0</p>
+                            <p class="text-sm text-gray-600">В работе</p>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold text-green-600" id="myResolvedTickets">0</p>
+                            <p class="text-sm text-gray-600">Решено</p>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold text-gray-600" id="myTotalTickets">0</p>
+                            <p class="text-sm text-gray-600">Всего</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Assignee Modal -->
+    <div id="addAssigneeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                <h3 class="text-lg font-semibold mb-4">➕ Добавить ответственного</h3>
+                
+                <form id="addAssigneeForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Имя *</label>
+                        <input type="text" id="assigneeName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                        <input type="email" id="assigneeEmail" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Отдел</label>
+                        <input type="text" id="assigneeDepartment" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Роль</label>
+                        <select id="assigneeRole" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="support">Техподдержка</option>
+                            <option value="developer">Разработчик</option>
+                            <option value="manager">Менеджер</option>
+                            <option value="admin">Администратор</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button type="submit" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                            Добавить
+                        </button>
+                        <button type="button" onclick="hideAddAssigneeModal()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                            Отмена
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticket Detail Modal -->
+    <div id="ticketDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-semibold" id="modalTicketTitle">Заголовок заявки</h3>
+                        <button onclick="hideTicketDetailModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div id="modalTicketContent">
+                        <!-- Ticket content will be loaded here -->
                     </div>
                 </div>
             </div>
@@ -384,123 +362,592 @@
     </div>
 
     <script>
-        // Инициализация Telegram WebApp
-        if (window.Telegram?.WebApp) {
-            const tg = window.Telegram.WebApp;
-            
-            // Инициализируем WebApp
-            tg.ready();
-            
-            // Настраиваем тему
-            if (tg.colorScheme === 'dark') {
-                document.documentElement.classList.add('dark');
+        // Mock data for demonstration
+        let tickets = [
+            {
+                id: 1,
+                title: "Проблема с доступом к системе",
+                description: "Не могу войти в личный кабинет, выдает ошибку аутентификации",
+                status: "new",
+                priority: "high",
+                category: "technical",
+                assignee: null,
+                createdBy: "user1",
+                createdAt: "2024-01-15T10:30:00Z",
+                updatedAt: "2024-01-15T10:30:00Z"
+            },
+            {
+                id: 2,
+                title: "Добавить новый отчет",
+                description: "Нужен отчет по продажам за последний квартал",
+                status: "in-progress",
+                priority: "medium",
+                category: "feature",
+                assignee: "assignee1",
+                createdBy: "user2",
+                createdAt: "2024-01-14T14:20:00Z",
+                updatedAt: "2024-01-15T09:15:00Z"
+            },
+            {
+                id: 3,
+                title: "Ошибка в расчете скидок",
+                description: "Система неправильно рассчитывает скидки для VIP клиентов",
+                status: "resolved",
+                priority: "critical",
+                category: "bug",
+                assignee: "assignee2",
+                createdBy: "user3",
+                createdAt: "2024-01-13T16:45:00Z",
+                updatedAt: "2024-01-15T11:30:00Z"
+            }
+        ];
+
+        let assignees = [
+            {
+                id: "assignee1",
+                name: "Иван Петров",
+                email: "ivan.petrov@company.com",
+                department: "Разработка",
+                role: "developer",
+                avatar: "IP"
+            },
+            {
+                id: "assignee2",
+                name: "Мария Сидорова",
+                email: "maria.sidorova@company.com",
+                department: "Техподдержка",
+                role: "support",
+                avatar: "МС"
+            },
+            {
+                id: "assignee3",
+                name: "Алексей Козлов",
+                email: "alexey.kozlov@company.com",
+                department: "Менеджмент",
+                role: "manager",
+                avatar: "АК"
+            }
+        ];
+
+        let currentUser = {
+            id: "user1",
+            name: "Владимир Кузин",
+            username: "KuzinVA",
+            role: "Пользователь",
+            email: "vladimir.kuzin@company.com",
+            department: "IT отдел",
+            registrationDate: "2024-01-01"
+        };
+
+        // Initialize Telegram WebApp
+        function initTelegram() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.ready();
+                window.Telegram.WebApp.expand();
+                
+                // Set theme colors
+                const theme = window.Telegram.WebApp.colorScheme;
+                if (theme === 'dark') {
+                    document.body.classList.add('dark');
+                }
+                
+                // Get user info if available
+                if (window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+                    const tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+                    currentUser.name = `${tgUser.first_name} ${tgUser.last_name || ''}`.trim();
+                    currentUser.username = tgUser.username || currentUser.username;
+                }
             }
             
-            // Настраиваем главную кнопку
-            tg.mainButton.setText('Создать заявку');
-            tg.mainButton.onClick(() => {
-                showPage('create');
-            });
-            tg.mainButton.show();
-            
-            console.log('Telegram WebApp инициализирован');
+            updateUserInfo();
+            loadDashboard();
+            loadAssignees();
         }
 
-        // Функция для переключения страниц
+        // Navigation
         function showPage(pageName) {
-            // Скрываем все страницы
-            const pages = ['dashboard', 'tickets', 'create', 'stats', 'profile'];
-            pages.forEach(page => {
-                const element = document.getElementById(page);
-                if (element) {
-                    element.classList.add('hidden');
-                }
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('hidden');
             });
             
-            // Показываем выбранную страницу
-            const selectedPage = document.getElementById(pageName);
-            if (selectedPage) {
-                selectedPage.classList.remove('hidden');
-            }
+            // Show selected page
+            document.getElementById(pageName).classList.remove('hidden');
             
-            // Обновляем главную кнопку в зависимости от страницы
-            if (window.Telegram?.WebApp) {
-                const tg = window.Telegram.WebApp;
+            // Update navigation buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-gray-100', 'text-gray-800');
+            });
+            
+            // Highlight current page button
+            event.target.classList.remove('bg-gray-100', 'text-gray-800');
+            event.target.classList.add('bg-blue-600', 'text-white');
+            
+            // Load page-specific content
+            switch(pageName) {
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+                case 'tickets':
+                    loadTickets();
+                    break;
+                case 'assignees':
+                    loadAssignees();
+                    break;
+                case 'stats':
+                    loadStats();
+                    break;
+                case 'profile':
+                    loadProfile();
+                    break;
+            }
+        }
+
+        // Dashboard functions
+        function loadDashboard() {
+            updateDashboardStats();
+            loadRecentTickets();
+            loadMyTickets();
+        }
+
+        function updateDashboardStats() {
+            const newCount = tickets.filter(t => t.status === 'new').length;
+            const inProgressCount = tickets.filter(t => t.status === 'in-progress').length;
+            const resolvedCount = tickets.filter(t => t.status === 'resolved').length;
+            const totalCount = tickets.length;
+            
+            document.getElementById('newTickets').textContent = newCount;
+            document.getElementById('inProgressTickets').textContent = inProgressCount;
+            document.getElementById('resolvedTickets').textContent = resolvedCount;
+            document.getElementById('totalTickets').textContent = totalCount;
+        }
+
+        function loadRecentTickets() {
+            const recentTickets = tickets.slice(0, 5);
+            const container = document.getElementById('recentTickets');
+            
+            container.innerHTML = recentTickets.map(ticket => `
+                <div class="border-l-4 border-blue-500 pl-3 py-2">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-900">${ticket.title}</h4>
+                            <p class="text-sm text-gray-600">${ticket.description.substring(0, 60)}...</p>
+                        </div>
+                        <div class="flex flex-col items-end space-y-1">
+                            <span class="status-${ticket.status} px-2 py-1 text-xs rounded-full border">
+                                ${getStatusText(ticket.status)}
+                            </span>
+                            <span class="priority-${ticket.priority} px-2 py-1 text-xs rounded-full border">
+                                ${getPriorityText(ticket.priority)}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadMyTickets() {
+            const myTickets = tickets.filter(t => t.createdBy === currentUser.id).slice(0, 5);
+            const container = document.getElementById('myTickets');
+            
+            container.innerHTML = myTickets.map(ticket => `
+                <div class="border-l-4 border-green-500 pl-3 py-2">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-900">${ticket.title}</h4>
+                            <p class="text-sm text-gray-600">${ticket.description.substring(0, 60)}...</p>
+                        </div>
+                        <div class="flex flex-col items-end space-y-1">
+                            <span class="status-${ticket.status} px-2 py-1 text-xs rounded-full border">
+                                ${getStatusText(ticket.status)}
+                            </span>
+                            <span class="priority-${ticket.priority} px-2 py-1 text-xs rounded-full border">
+                                ${getPriorityText(ticket.priority)}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Tickets functions
+        function loadTickets() {
+            const container = document.getElementById('ticketsList');
+            const filteredTickets = filterTickets();
+            
+            container.innerHTML = filteredTickets.map(ticket => `
+                <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-blue-500 hover:shadow-lg transition-shadow cursor-pointer" onclick="showTicketDetail(${ticket.id})">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">${ticket.title}</h3>
+                            <p class="text-gray-600 mb-3">${ticket.description.substring(0, 100)}...</p>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <span>📅 ${formatDate(ticket.createdAt)}</span>
+                                <span>👤 ${ticket.createdBy}</span>
+                                <span>🏷️ ${getCategoryText(ticket.category)}</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end space-y-2">
+                            <span class="status-${ticket.status} px-3 py-1 text-sm rounded-full border">
+                                ${getStatusText(ticket.status)}
+                            </span>
+                            <span class="priority-${ticket.priority} px-3 py-1 text-sm rounded-full border">
+                                ${getPriorityText(ticket.priority)}
+                            </span>
+                            ${ticket.assignee ? `
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-sm text-gray-600">Ответственный:</span>
+                                    <span class="text-sm font-medium">${getAssigneeName(ticket.assignee)}</span>
+                                </div>
+                            ` : '<span class="text-sm text-gray-400">Не назначен</span>'}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterTickets() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const priorityFilter = document.getElementById('priorityFilter').value;
+            const assigneeFilter = document.getElementById('assigneeFilter').value;
+            
+            return tickets.filter(ticket => {
+                const statusMatch = !statusFilter || ticket.status === statusFilter;
+                const priorityMatch = !priorityFilter || ticket.priority === priorityFilter;
+                const assigneeMatch = !assigneeFilter || ticket.assignee === assigneeFilter;
                 
-                switch (pageName) {
-                    case 'create':
-                        tg.mainButton.setText('Сохранить заявку');
-                        tg.mainButton.onClick(() => createTicket());
-                        break;
-                    case 'tickets':
-                        tg.mainButton.setText('Обновить');
-                        tg.mainButton.onClick(() => location.reload());
-                        break;
-                    case 'stats':
-                        tg.mainButton.setText('Обновить статистику');
-                        tg.mainButton.onClick(() => location.reload());
-                        break;
-                    case 'profile':
-                        tg.mainButton.setText('Сохранить настройки');
-                        tg.mainButton.onClick(() => saveProfile());
-                        break;
-                    default:
-                        tg.mainButton.setText('Создать заявку');
-                        tg.mainButton.onClick(() => showPage('create'));
+                return statusMatch && priorityMatch && assigneeMatch;
+            });
+        }
+
+        // Create ticket functions
+        function createTicket(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const ticket = {
+                id: tickets.length + 1,
+                title: document.getElementById('ticketTitle').value,
+                description: document.getElementById('ticketDescription').value,
+                priority: document.getElementById('ticketPriority').value,
+                category: document.getElementById('ticketCategory').value,
+                assignee: document.getElementById('ticketAssignee').value || null,
+                status: 'new',
+                createdBy: currentUser.id,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            tickets.push(ticket);
+            
+            // Reset form
+            event.target.reset();
+            
+            // Show success message
+            showAlert('✅ Заявка успешно создана!');
+            
+            // Go to tickets page
+            showPage('tickets');
+        }
+
+        // Assignees functions
+        function loadAssignees() {
+            // Update assignee filters
+            updateAssigneeFilters();
+            
+            // Update assignees list
+            const container = document.getElementById('assigneesList');
+            container.innerHTML = assignees.map(assignee => `
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-lg font-bold text-blue-600">${assignee.avatar}</span>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900">${assignee.name}</h3>
+                            <p class="text-sm text-gray-600">${assignee.email}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <p><span class="font-medium">Отдел:</span> ${assignee.department}</p>
+                        <p><span class="font-medium">Роль:</span> ${getRoleText(assignee.role)}</p>
+                        <p><span class="font-medium">Заявок в работе:</span> ${getAssigneeTicketCount(assignee.id)}</p>
+                    </div>
+                    <div class="flex space-x-2 mt-3">
+                        <button onclick="editAssignee('${assignee.id}')" class="flex-1 bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700 transition-colors">
+                            ✏️ Редактировать
+                        </button>
+                        <button onclick="deleteAssignee('${assignee.id}')" class="flex-1 bg-red-600 text-white px-3 py-2 rounded text-sm hover:bg-red-700 transition-colors">
+                            🗑️ Удалить
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateAssigneeFilters() {
+            const assigneeSelects = ['assigneeFilter', 'ticketAssignee'];
+            
+            assigneeSelects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    const currentValue = select.value;
+                    select.innerHTML = '<option value="">Не назначен</option>';
+                    
+                    assignees.forEach(assignee => {
+                        const option = document.createElement('option');
+                        option.value = assignee.id;
+                        option.textContent = assignee.name;
+                        select.appendChild(option);
+                    });
+                    
+                    select.value = currentValue;
                 }
+            });
+        }
+
+        function addAssignee(event) {
+            event.preventDefault();
+            
+            const assignee = {
+                id: 'assignee' + (assignees.length + 1),
+                name: document.getElementById('assigneeName').value,
+                email: document.getElementById('assigneeEmail').value,
+                department: document.getElementById('assigneeDepartment').value,
+                role: document.getElementById('assigneeRole').value,
+                avatar: document.getElementById('assigneeName').value.split(' ').map(n => n[0]).join('').toUpperCase()
+            };
+            
+            assignees.push(assignee);
+            
+            // Reset form
+            event.target.reset();
+            
+            // Hide modal
+            hideAddAssigneeModal();
+            
+            // Reload assignees
+            loadAssignees();
+            
+            // Show success message
+            showAlert('✅ Ответственный успешно добавлен!');
+        }
+
+        // Modal functions
+        function showAddAssigneeModal() {
+            document.getElementById('addAssigneeModal').classList.remove('hidden');
+        }
+
+        function hideAddAssigneeModal() {
+            document.getElementById('addAssigneeModal').classList.add('hidden');
+        }
+
+        function showTicketDetail(ticketId) {
+            const ticket = tickets.find(t => t.id === ticketId);
+            if (!ticket) return;
+            
+            document.getElementById('modalTicketTitle').textContent = ticket.title;
+            
+            const content = document.getElementById('modalTicketContent');
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Описание</label>
+                        <p class="text-gray-900">${ticket.description}</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Статус</label>
+                            <span class="status-${ticket.status} px-3 py-1 text-sm rounded-full border">
+                                ${getStatusText(ticket.status)}
+                            </span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Приоритет</label>
+                            <span class="priority-${ticket.priority} px-3 py-1 text-sm rounded-full border">
+                                ${getPriorityText(ticket.priority)}
+                            </span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Категория</label>
+                            <p class="text-gray-900">${getCategoryText(ticket.category)}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ответственный</label>
+                            <p class="text-gray-900">${ticket.assignee ? getAssigneeName(ticket.assignee) : 'Не назначен'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Создано</label>
+                            <p class="text-gray-900">${formatDate(ticket.createdAt)}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Обновлено</label>
+                            <p class="text-gray-900">${formatDate(ticket.updatedAt)}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-4">
+                        <h4 class="font-medium text-gray-900 mb-2">Изменить статус</h4>
+                        <div class="flex space-x-2">
+                            <select id="newStatus" class="px-3 py-2 border border-gray-300 rounded-lg">
+                                <option value="new">Новый</option>
+                                <option value="in-progress">В работе</option>
+                                <option value="resolved">Решено</option>
+                                <option value="closed">Закрыто</option>
+                            </select>
+                            <button onclick="updateTicketStatus(${ticket.id})" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                Обновить
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-4">
+                        <h4 class="font-medium text-gray-900 mb-2">Назначить ответственного</h4>
+                        <div class="flex space-x-2">
+                            <select id="newAssignee" class="px-3 py-2 border border-gray-300 rounded-lg">
+                                <option value="">Не назначен</option>
+                                ${assignees.map(a => `<option value="${a.id}">${a.name}</option>`).join('')}
+                            </select>
+                            <button onclick="updateTicketAssignee(${ticket.id})" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                                Назначить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Set current values
+            document.getElementById('newStatus').value = ticket.status;
+            document.getElementById('newAssignee').value = ticket.assignee || '';
+            
+            document.getElementById('ticketDetailModal').classList.remove('hidden');
+        }
+
+        function hideTicketDetailModal() {
+            document.getElementById('ticketDetailModal').classList.add('hidden');
+        }
+
+        // Utility functions
+        function getStatusText(status) {
+            const statusMap = {
+                'new': 'Новый',
+                'in-progress': 'В работе',
+                'resolved': 'Решено',
+                'closed': 'Закрыто'
+            };
+            return statusMap[status] || status;
+        }
+
+        function getPriorityText(priority) {
+            const priorityMap = {
+                'low': 'Низкий',
+                'medium': 'Средний',
+                'high': 'Высокий',
+                'critical': 'Критический'
+            };
+            return priorityMap[priority] || priority;
+        }
+
+        function getCategoryText(category) {
+            const categoryMap = {
+                'technical': 'Техподдержка',
+                'billing': 'Биллинг',
+                'feature': 'Новый функционал',
+                'bug': 'Ошибка',
+                'other': 'Другое'
+            };
+            return categoryMap[category] || category;
+        }
+
+        function getRoleText(role) {
+            const roleMap = {
+                'support': 'Техподдержка',
+                'developer': 'Разработчик',
+                'manager': 'Менеджер',
+                'admin': 'Администратор'
+            };
+            return roleMap[role] || role;
+        }
+
+        function getAssigneeName(assigneeId) {
+            const assignee = assignees.find(a => a.id === assigneeId);
+            return assignee ? assignee.name : 'Неизвестно';
+        }
+
+        function getAssigneeTicketCount(assigneeId) {
+            return tickets.filter(t => t.assignee === assigneeId && t.status !== 'closed').length;
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('ru-RU', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function updateUserInfo() {
+            document.getElementById('userInfo').textContent = currentUser.name;
+            document.getElementById('profileName').textContent = currentUser.name;
+            document.getElementById('profileUsername').textContent = `@${currentUser.username}`;
+            document.getElementById('profileRole').textContent = currentUser.role;
+            document.getElementById('profileEmail').textContent = currentUser.email;
+            document.getElementById('profileDepartment').textContent = currentUser.department;
+            document.getElementById('profileRegistration').textContent = currentUser.registrationDate;
+            document.getElementById('profileInitials').textContent = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        }
+
+        function updateTicketStatus(ticketId) {
+            const newStatus = document.getElementById('newStatus').value;
+            const ticket = tickets.find(t => t.id === ticketId);
+            
+            if (ticket) {
+                ticket.status = newStatus;
+                ticket.updatedAt = new Date().toISOString();
                 
-                tg.mainButton.show();
+                showAlert('✅ Статус заявки обновлен!');
+                hideTicketDetailModal();
+                loadDashboard();
+                loadTickets();
             }
         }
 
-        // Функция создания заявки
-        function createTicket() {
-            const title = document.getElementById('ticketTitle').value;
-            const description = document.getElementById('ticketDescription').value;
-            const priority = document.getElementById('ticketPriority').value;
-            const location = document.getElementById('ticketLocation').value;
-            const tags = document.getElementById('ticketTags').value;
+        function updateTicketAssignee(ticketId) {
+            const newAssignee = document.getElementById('newAssignee').value;
+            const ticket = tickets.find(t => t.id === ticketId);
             
-            if (!title || !description) {
-                alert('Пожалуйста, заполните название и описание заявки');
-                return;
-            }
-            
-            // Здесь будет отправка данных на сервер
-            console.log('Создание заявки:', { title, description, priority, location, tags });
-            
-            // Показываем уведомление об успехе
-            if (window.Telegram?.WebApp) {
-                const tg = window.Telegram.WebApp;
-                tg.showAlert('✅ Заявка успешно создана!');
+            if (ticket) {
+                ticket.assignee = newAssignee || null;
+                ticket.updatedAt = new Date().toISOString();
                 
-                // Очищаем форму
-                document.getElementById('ticketTitle').value = '';
-                document.getElementById('ticketDescription').value = '';
-                document.getElementById('ticketPriority').value = 'low';
-                document.getElementById('ticketLocation').value = 'main-square';
-                document.getElementById('ticketTags').value = '';
-                
-                // Переходим на страницу заявок
-                showPage('tickets');
+                showAlert('✅ Ответственный назначен!');
+                hideTicketDetailModal();
+                loadDashboard();
+                loadTickets();
             }
         }
 
-        // Функция сохранения профиля
-        function saveProfile() {
-            if (window.Telegram?.WebApp) {
-                const tg = window.Telegram.WebApp;
-                tg.showAlert('✅ Настройки профиля сохранены!');
+        function showAlert(message) {
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.showAlert(message);
+            } else {
+                alert(message);
             }
         }
 
-        // Инициализация при загрузке страницы
-        window.addEventListener('load', function() {
-            console.log('Helpdesk Park загружен');
-            
-            // Показываем дашборд по умолчанию
-            showPage('dashboard');
-        });
+        // Event listeners
+        document.getElementById('createTicketForm').addEventListener('submit', createTicket);
+        document.getElementById('addAssigneeForm').addEventListener('submit', addAssignee);
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', initTelegram);
     </script>
 </body>
 </html>
