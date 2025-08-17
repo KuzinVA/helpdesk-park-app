@@ -249,8 +249,8 @@
                         🔍 Chat ID для тестирования:
                     </label>
                     <div class="flex space-x-2">
-                        <input type="text" id="manualChatId" placeholder="-4896951550" 
-                               class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm">
+                                        <input type="text" id="manualChatId" value="-1002978831408" placeholder="-1002978831408" 
+                                class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm">
                         <button onclick="loadChatParticipantsById()" 
                                 class="bg-green-600 text-white px-3 py-2 rounded-md text-sm hover:bg-green-700">
                             📥 Загрузить
@@ -532,18 +532,13 @@
             try {
                 console.log('📡 Загружаем участников чата...');
                 
-                // Получаем chat_id из initDataUnsafe
-                const chatId = window.Telegram?.WebApp?.initDataUnsafe?.chat?.id;
+                // Получаем chat_id из initDataUnsafe или используем известный
+                let chatId = window.Telegram?.WebApp?.initDataUnsafe?.chat?.id;
                 
                 if (!chatId) {
-                    console.log('⚠️ Chat ID не найден, используем тестовые данные');
-                    // Fallback на тестовые данные
-                    assignees = [
-                        { id: 1, name: 'Иван Иванов', username: 'ivan_ivanov', role: 'Менеджер', department: 'Администрация' },
-                        { id: 2, name: 'Мария Петрова', username: 'maria_pet', role: 'Оператор', department: 'Служба поддержки' },
-                        { id: 3, name: 'Алексей Сидоров', username: 'alex_sid', role: 'Техник', department: 'Техническая служба' }
-                    ];
-                    return;
+                    // Используем известный Chat ID для тестирования
+                    chatId = '-1002978831408';
+                    console.log('⚠️ Chat ID не найден, используем известный Chat ID:', chatId);
                 }
                 
                 console.log(`🔍 Chat ID: ${chatId}`);
