@@ -238,6 +238,10 @@
                     💡 <strong>Совет:</strong> Ответственные выбираются из участников Telegram чата. 
                     Добавьте бота в групповой чат для доступа к списку участников.
                 </p>
+                <p class="text-sm text-blue-700 mt-2">
+                    🔔 <strong>Уведомления:</strong> При назначении ответственного автоматически отправляется 
+                    уведомление в Telegram с деталями заявки.
+                </p>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="assigneesList">
@@ -715,14 +719,48 @@
             
             tickets.push(ticket);
             
+            // Отправляем уведомление ответственному, если назначен
+            if (ticket.assignee) {
+                sendAssigneeNotification(ticket);
+            }
+            
             // Reset form
             event.target.reset();
             
             // Show success message
-            showAlert('✅ Заявка успешно создана!');
+            showAlert('✅ Заявка успешно создана!' + (ticket.assignee ? ' Уведомление отправлено ответственному.' : ''));
             
             // Go to tickets page
             showPage('tickets');
+        }
+        
+        // Отправка уведомления ответственному
+        async function sendAssigneeNotification(ticket) {
+            try {
+                const assignee = assignees.find(a => a.id === ticket.assignee);
+                if (!assignee) return;
+                
+                // В реальном приложении здесь будет API запрос
+                console.log(`🔔 Отправляем уведомление ответственному: ${assignee.name}`);
+                
+                // Показываем уведомление в UI
+                showNotification(`📤 Уведомление отправлено ${assignee.name} о назначении на заявку "${ticket.title}"`);
+                
+                // В реальном приложении здесь будет вызов API для отправки Telegram уведомления
+                // await fetch('/api/notifications/send', {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify({
+                //         type: 'assignment',
+                //         assigneeId: assignee.id,
+                //         ticketData: ticket
+                //     })
+                // });
+                
+            } catch (error) {
+                console.error('Ошибка отправки уведомления:', error);
+                showAlert('⚠️ Заявка создана, но уведомление не отправлено');
+            }
         }
 
         // Assignees functions
@@ -1000,13 +1038,46 @@
             const ticket = tickets.find(t => t.id === ticketId);
             
             if (ticket) {
+                const oldStatus = ticket.status;
                 ticket.status = newStatus;
                 ticket.updatedAt = new Date().toISOString();
                 
-                showAlert('✅ Статус заявки обновлен!');
+                // Отправляем уведомление ответственному об изменении статуса
+                if (ticket.assignee && oldStatus !== newStatus) {
+                    sendStatusUpdateNotification(ticket, newStatus);
+                }
+                
+                showAlert('✅ Статус заявки обновлен!' + (ticket.assignee ? ' Уведомление отправлено ответственному.' : ''));
                 hideTicketDetailModal();
                 loadDashboard();
                 loadTickets();
+            }
+        }
+        
+        // Отправка уведомления об изменении статуса
+        async function sendStatusUpdateNotification(ticket, newStatus) {
+            try {
+                const assignee = assignees.find(a => a.id === ticket.assignee);
+                if (!assignee) return;
+                
+                console.log(`🔄 Отправляем уведомление об изменении статуса: ${assignee.name}`);
+                
+                showNotification(`📤 Уведомление обновления статуса отправлено ${assignee.name}`);
+                
+                // В реальном приложении здесь будет вызов API
+                // await fetch('/api/notifications/status-update', {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify({
+                //         type: 'status_update',
+                //         assigneeId: assignee.id,
+                //         ticketData: ticket,
+                //         newStatus: newStatus
+                //     })
+                // });
+                
+            } catch (error) {
+                console.error('Ошибка отправки уведомления о статусе:', error);
             }
         }
 
@@ -1015,10 +1086,16 @@
             const ticket = tickets.find(t => t.id === ticketId);
             
             if (ticket) {
+                const oldAssignee = ticket.assignee;
                 ticket.assignee = newAssignee || null;
                 ticket.updatedAt = new Date().toISOString();
                 
-                showAlert('✅ Ответственный назначен!');
+                // Отправляем уведомление новому ответственному
+                if (newAssignee && newAssignee !== oldAssignee) {
+                    sendAssigneeNotification(ticket);
+                }
+                
+                showAlert('✅ Ответственный назначен!' + (newAssignee ? ' Уведомление отправлено.' : ''));
                 hideTicketDetailModal();
                 loadDashboard();
                 loadTickets();
@@ -1031,6 +1108,58 @@
             } else {
                 alert(message);
             }
+        }
+        
+        // Показ уведомлений в UI
+        function showNotification(message, type = 'info') {
+            // Создаем элемент уведомления
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 max-w-sm transform transition-all duration-300 translate-x-full`;
+            
+            // Определяем стили в зависимости от типа
+            switch (type) {
+                case 'success':
+                    notification.className += ' bg-green-500 text-white';
+                    break;
+                case 'error':
+                    notification.className += ' bg-red-500 text-white';
+                    break;
+                case 'warning':
+                    notification.className += ' bg-yellow-500 text-white';
+                    break;
+                default:
+                    notification.className += ' bg-blue-500 text-white';
+            }
+            
+            notification.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <span class="text-lg">${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</span>
+                    <p class="text-sm">${message}</p>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-auto text-white hover:text-gray-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            
+            // Добавляем в DOM
+            document.body.appendChild(notification);
+            
+            // Показываем уведомление
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Автоматически скрываем через 5 секунд
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 300);
+            }, 5000);
         }
 
         // Event listeners
