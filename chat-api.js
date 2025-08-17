@@ -2,7 +2,7 @@ const https = require('https');
 const http = require('http');
 const url = require('url');
 
-const BOT_TOKEN = '8465643840:AAEWFjl1h-EY3150NgihSG2HAaVYLci14Rk';
+const BOT_TOKEN = process.env.BOT_TOKEN || '8465643840:AAEWFjl1h-EY3150NgihSG2HAaVYLci14Rk';
 const PORT = process.env.PORT || 3001;
 
 console.log('🚀 Запуск Chat API сервера...');

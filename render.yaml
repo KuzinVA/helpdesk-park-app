@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: helpdesk-chat-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node chat-api.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: BOT_TOKEN
+        sync: false
+    healthCheckPath: /api/health
