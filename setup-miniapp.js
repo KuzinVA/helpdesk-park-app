@@ -63,7 +63,7 @@ async function setupStartCommand() {
                     {
                         text: '🚀 Запустить Helpdesk Park',
                         web_app: {
-                            url: 'http://localhost:8080'
+                            url: 'https://KuzinVA.github.io/helpdesk-park-app/'
                         }
                     }
                 ],
