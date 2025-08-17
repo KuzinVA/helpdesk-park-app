@@ -229,7 +229,7 @@
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold">👥 Участники чата</h2>
                 <button onclick="refreshChatParticipants()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                    🔄 Обновить
+                    🔄 Обновить участников
                 </button>
             </div>
             
@@ -242,6 +242,24 @@
                     🔔 <strong>Уведомления:</strong> При назначении ответственного автоматически отправляется 
                     уведомление в Telegram с деталями заявки.
                 </p>
+                
+                <!-- Manual Chat ID input for testing -->
+                <div class="mt-3 p-3 bg-white rounded border">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        🔍 Chat ID для тестирования:
+                    </label>
+                    <div class="flex space-x-2">
+                        <input type="text" id="manualChatId" placeholder="-4896951550" 
+                               class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm">
+                        <button onclick="loadChatParticipantsById()" 
+                                class="bg-green-600 text-white px-3 py-2 rounded-md text-sm hover:bg-green-700">
+                            📥 Загрузить
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">
+                        Введите ID чата для тестирования API (например: -4896951550)
+                    </p>
+                </div>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="assigneesList">
@@ -509,36 +527,168 @@
             loadAssignees();
         }
         
-        // Load chat participants from Telegram
+        // Load chat participants from Telegram API
         async function loadChatParticipants() {
             try {
-                // В реальном приложении здесь будет API запрос к Telegram
-                // Пока используем mock данные участников чата
-                const chatParticipants = [
-                    { id: 1, username: 'ivan_petrov', first_name: 'Иван', last_name: 'Петров' },
-                    { id: 2, username: 'maria_sidorova', first_name: 'Мария', last_name: 'Сидорова' },
-                    { id: 3, username: 'alexey_kozlov', first_name: 'Алексей', last_name: 'Козлов' },
-                    { id: 4, username: 'anna_ivanova', first_name: 'Анна', last_name: 'Иванова' },
-                    { id: 5, username: 'dmitry_smirnov', first_name: 'Дмитрий', last_name: 'Смирнов' }
-                ];
+                console.log('📡 Загружаем участников чата...');
                 
-                // Обновляем список ответственных
-                assignees = chatParticipants.map(participant => ({
-                    id: `participant_${participant.id}`,
-                    name: `${participant.first_name} ${participant.last_name}`,
-                    username: participant.username,
-                    email: `${participant.username}@telegram.chat`,
-                    department: 'Участник чата',
-                    role: 'member',
-                    avatar: `${participant.first_name[0]}${participant.last_name[0]}`
-                }));
+                // Получаем chat_id из initDataUnsafe
+                const chatId = window.Telegram?.WebApp?.initDataUnsafe?.chat?.id;
                 
-                // Обновляем UI
-                loadAssignees();
-                updateAssigneeFilters();
+                if (!chatId) {
+                    console.log('⚠️ Chat ID не найден, используем тестовые данные');
+                    // Fallback на тестовые данные
+                    assignees = [
+                        { id: 1, name: 'Иван Иванов', username: 'ivan_ivanov', role: 'Менеджер', department: 'Администрация' },
+                        { id: 2, name: 'Мария Петрова', username: 'maria_pet', role: 'Оператор', department: 'Служба поддержки' },
+                        { id: 3, name: 'Алексей Сидоров', username: 'alex_sid', role: 'Техник', department: 'Техническая служба' }
+                    ];
+                    return;
+                }
+                
+                console.log(`🔍 Chat ID: ${chatId}`);
+                
+                // Вызываем API для получения участников чата
+                const response = await fetch(`http://localhost:3001/api/chat-members?chat_id=${chatId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.members) {
+                    console.log(`✅ Получено ${data.members.length} участников чата`);
+                    
+                    // Преобразуем данные в формат assignees
+                    assignees = data.members.map(member => ({
+                        id: member.id,
+                        name: `${member.first_name} ${member.last_name || ''}`.trim(),
+                        username: member.username || `user_${member.id}`,
+                        role: member.is_admin ? 'Администратор' : 'Участник',
+                        department: member.is_admin ? 'Администрация' : 'Участники чата'
+                    }));
+                    
+                    console.log('👥 Участники чата загружены:', assignees);
+                    
+                    // Обновляем UI если мы на странице assignees
+                    if (currentPage === 'assignees') {
+                        showAssigneesPage();
+                    }
+                    
+                } else {
+                    throw new Error('Неверный формат ответа API');
+                }
                 
             } catch (error) {
-                console.error('Ошибка загрузки участников чата:', error);
+                console.error('❌ Ошибка при загрузке участников чата:', error);
+                
+                // Fallback на тестовые данные при ошибке
+                assignees = [
+                    { id: 1, name: 'Иван Иванов', username: 'ivan_ivanov', role: 'Менеджер', department: 'Администрация' },
+                    { id: 2, name: 'Мария Петрова', username: 'maria_pet', role: 'Оператор', department: 'Служба поддержки' },
+                    { id: 3, name: 'Алексей Сидоров', username: 'alex_sid', role: 'Техник', department: 'Техническая служба' }
+                ];
+                
+                // Показываем уведомление об ошибке
+                showNotification('⚠️ Не удалось загрузить участников чата. Используются тестовые данные.', 'warning');
+            }
+        }
+
+        // Manual refresh of chat participants
+        async function refreshChatParticipants() {
+            try {
+                console.log('🔄 Ручное обновление участников чата...');
+                
+                // Показываем индикатор загрузки
+                const button = event.target;
+                const originalText = button.innerHTML;
+                button.innerHTML = '⏳ Загрузка...';
+                button.disabled = true;
+                
+                // Загружаем участников чата
+                await loadChatParticipants();
+                
+                // Обновляем UI
+                if (currentPage === 'assignees') {
+                    showAssigneesPage();
+                }
+                
+                // Показываем уведомление об успехе
+                showNotification('✅ Участники чата обновлены!', 'success');
+                
+            } catch (error) {
+                console.error('❌ Ошибка при обновлении участников чата:', error);
+                showNotification('❌ Не удалось обновить участников чата', 'error');
+            } finally {
+                // Восстанавливаем кнопку
+                const button = event.target;
+                button.innerHTML = '🔄 Обновить участников';
+                button.disabled = false;
+            }
+        }
+
+        // Load chat participants by manual Chat ID
+        async function loadChatParticipantsById() {
+            try {
+                const chatId = document.getElementById('manualChatId').value.trim();
+                
+                if (!chatId) {
+                    showNotification('⚠️ Введите Chat ID', 'warning');
+                    return;
+                }
+                
+                console.log(`🔍 Загружаем участников чата по ID: ${chatId}`);
+                
+                // Показываем индикатор загрузки
+                const button = event.target;
+                const originalText = button.innerHTML;
+                button.innerHTML = '⏳ Загрузка...';
+                button.disabled = true;
+                
+                // Вызываем API для получения участников чата
+                const response = await fetch(`http://localhost:3001/api/chat-members?chat_id=${chatId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.members) {
+                    console.log(`✅ Получено ${data.members.length} участников чата`);
+                    
+                    // Преобразуем данные в формат assignees
+                    assignees = data.members.map(member => ({
+                        id: member.id,
+                        name: `${member.first_name} ${member.last_name || ''}`.trim(),
+                        username: member.username || `user_${member.id}`,
+                        role: member.is_admin ? 'Администратор' : 'Участник',
+                        department: member.is_admin ? 'Администрация' : 'Участники чата'
+                    }));
+                    
+                    console.log('👥 Участники чата загружены:', assignees);
+                    
+                    // Обновляем UI
+                    if (currentPage === 'assignees') {
+                        showAssigneesPage();
+                    }
+                    
+                    // Показываем уведомление об успехе
+                    showNotification(`✅ Загружено ${assignees.length} участников чата!`, 'success');
+                    
+                } else {
+                    throw new Error('Неверный формат ответа API');
+                }
+                
+            } catch (error) {
+                console.error('❌ Ошибка при загрузке участников чата по ID:', error);
+                showNotification(`❌ Ошибка: ${error.message}`, 'error');
+            } finally {
+                // Восстанавливаем кнопку
+                const button = event.target;
+                button.innerHTML = '📥 Загрузить';
+                button.disabled = false;
             }
         }
 
