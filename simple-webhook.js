@@ -29,9 +29,7 @@ app.post('/webhook', (req, res) => {
                     inline_keyboard: [[
                         {
                             text: '🚀 Открыть приложение',
-                            web_app: {
-                                url: `http://localhost:${PORT}/index-github.html`
-                            }
+                            url: `http://localhost:${PORT}/index-github.html`
                         }
                     ]]
                 }
