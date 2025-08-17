@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk Park - Production Mock</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <!-- Header -->
+    <div class="bg-blue-600 text-white p-4 shadow-lg">
+        <div class="flex items-center justify-between">
+            <h1 class="text-xl font-bold">🏢 Helpdesk Park</h1>
+            <div class="flex items-center space-x-2">
+                <span id="userInfo" class="text-sm">Загрузка...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="flex space-x-1 p-2">
+            <button class="nav-btn bg-blue-600 text-white px-4 py-2 rounded-md text-sm" onclick="showPage('dashboard')">📊 Dashboard</button>
+            <button class="nav-btn bg-gray-100 text-gray-800 px-4 py-2 rounded-md text-sm" onclick="showPage('tickets')">🎫 Заявки</button>
+            <button class="nav-btn bg-gray-100 text-gray-800 px-4 py-2 rounded-md text-sm" onclick="showPage('create')">➕ Создать</button>
+            <button class="nav-btn bg-gray-100 text-gray-800 px-4 py-2 rounded-md text-sm" onclick="showPage('assignees')">👥 Участники чата</button>
+            <button class="nav-btn bg-gray-100 text-gray-800 px-4 py-2 rounded-md text-sm" onclick="showPage('stats')">📈 Статистика</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto p-4">
+        <!-- Dashboard Page -->
+        <div id="dashboard" class="page">
+            <h2 class="text-2xl font-bold mb-6">📊 Dashboard</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">🎫 Всего заявок</h3>
+                    <p class="text-3xl font-bold text-blue-600" id="totalTickets">0</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">🔄 В работе</h3>
+                    <p class="text-3xl font-bold text-yellow-600" id="inProgressTickets">0</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">✅ Завершено</h3>
+                    <p class="text-3xl font-bold text-green-600" id="completedTickets">0</p>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">📈 Активность за последние 7 дней</h3>
+                <canvas id="activityChart" width="400" height="100"></canvas>
+            </div>
+        </div>
+
+        <!-- Tickets Page -->
+        <div id="tickets" class="page hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">🎫 Заявки</h2>
+                <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700" onclick="showPage('create')">➕ Создать заявку</button>
+            </div>
+            <div id="ticketsList" class="space-y-4">
+                <!-- Tickets will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Create Ticket Page -->
+        <div id="create" class="page hidden">
+            <h2 class="text-2xl font-bold mb-6">➕ Создать заявку</h2>
+            <form class="bg-white p-6 rounded-lg shadow-md space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">📝 Название заявки</label>
+                    <input type="text" id="ticketTitle" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Введите название заявки" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">📄 Описание</label>
+                    <textarea id="ticketDescription" class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="4" placeholder="Опишите проблему или задачу" required></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">🚨 Приоритет</label>
+                    <select id="ticketPriority" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <option value="low">🟢 Низкий</option>
+                        <option value="medium">🟡 Средний</option>
+                        <option value="high">🔴 Высокий</option>
+                        <option value="critical">🚨 Критический</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">👤 Ответственный</label>
+                    <select id="ticketAssignee" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        <option value="">Выберите ответственного</option>
+                        <!-- Assignees will be loaded here -->
+                    </select>
+                </div>
+                <div class="flex space-x-4">
+                    <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700">✅ Создать</button>
+                    <button type="button" class="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600" onclick="showPage('tickets')">❌ Отмена</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Assignees Page -->
+        <div id="assignees" class="page hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">👥 Участники чата</h2>
+                <div class="flex space-x-2">
+                    <button class="bg-green-600 text-white px-3 py-2 rounded-md text-sm hover:bg-green-700" onclick="refreshChatParticipants()">🔄 Обновить участников</button>
+                </div>
+            </div>
+            
+            <!-- Chat ID Input -->
+            <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">🔍 Chat ID для тестирования</label>
+                <div class="flex space-x-2">
+                    <input type="text" id="manualChatId" value="-1002978831408" placeholder="-1002978831408" 
+                            class="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm">
+                    <button onclick="loadChatParticipantsById()" 
+                            class="bg-green-600 text-white px-3 py-2 rounded-md text-sm hover:bg-green-700">📥 Загрузить</button>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">💡 Используйте Chat ID: -1002978831408 для тестирования</p>
+            </div>
+
+            <!-- Assignees List -->
+            <div id="assigneesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Assignees will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Stats Page -->
+        <div id="stats" class="page hidden">
+            <h2 class="text-2xl font-bold mb-6">📈 Статистика</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">📊 Статус заявок</h3>
+                    <canvas id="statusChart" width="400" height="200"></canvas>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">👥 Нагрузка по ответственным</h3>
+                    <canvas id="assigneeChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticket Detail Modal -->
+    <div id="ticketModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold" id="modalTitle">Детали заявки</h3>
+                        <button onclick="hideTicketDetailModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="modalContent">
+                        <!-- Modal content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentPage = 'dashboard';
+        let tickets = [];
+        let assignees = [];
+
+        // Mock data for testing
+        const mockAssignees = [
+            { id: 8465643840, name: 'helpdesk-park-app_bot', username: 'helpdeskParkApp_bot', role: 'Администратор', department: 'Администрация' },
+            { id: 135494615, name: 'Vladimir', username: 'Kuzin_V', role: 'Создатель', department: 'Администрация' }
+        ];
+
+        // Initialize Telegram WebApp
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+            
+            // Set user info
+            const user = window.Telegram.WebApp.initDataUnsafe?.user;
+            if (user) {
+                document.getElementById('userInfo').textContent = `@${user.username || user.first_name}`;
+            }
+        }
+
+        // Load chat participants from Mock Data
+        async function loadChatParticipants() {
+            try {
+                console.log('📡 Загружаем участников чата (MOCK)...');
+                
+                // Используем mock данные для тестирования
+                assignees = [...mockAssignees];
+                
+                console.log('👥 Участники чата загружены (MOCK):', assignees);
+                
+                // Обновляем UI если мы на странице assignees
+                if (currentPage === 'assignees') {
+                    showAssigneesPage();
+                }
+                
+                // Обновляем select в форме создания заявки
+                updateAssigneeSelect();
+                
+            } catch (error) {
+                console.error('❌ Ошибка при загрузке участников чата:', error);
+                
+                // Fallback на mock данные при ошибке
+                assignees = [...mockAssignees];
+                updateAssigneeSelect();
+            }
+        }
+
+        // Manual refresh of chat participants
+        async function refreshChatParticipants() {
+            try {
+                console.log('🔄 Ручное обновление участников чата (MOCK)...');
+                
+                // Показываем индикатор загрузки
+                const button = event.target;
+                const originalText = button.innerHTML;
+                button.innerHTML = '⏳ Загрузка...';
+                button.disabled = true;
+                
+                // Загружаем участников чата
+                await loadChatParticipants();
+                
+                // Обновляем UI
+                if (currentPage === 'assignees') {
+                    showAssigneesPage();
+                }
+                
+                // Показываем уведомление об успехе
+                showNotification('✅ Участники чата обновлены (MOCK)!', 'success');
+                
+            } catch (error) {
+                console.error('❌ Ошибка при обновлении участников чата:', error);
+                showNotification('❌ Не удалось обновить участников чата', 'error');
+            } finally {
+                // Восстанавливаем кнопку
+                const button = event.target;
+                button.innerHTML = '🔄 Обновить участников';
+                button.disabled = false;
+            }
+        }
+
+        // Load chat participants by manual Chat ID (Mock)
+        async function loadChatParticipantsById() {
+            try {
+                const chatId = document.getElementById('manualChatId').value.trim();
+                
+                if (!chatId) {
+                    showNotification('⚠️ Введите Chat ID', 'warning');
+                    return;
+                }
+                
+                console.log(`🔍 Загружаем участников чата по ID (MOCK): ${chatId}`);
+                
+                // Показываем индикатор загрузки
+                const button = event.target;
+                const originalText = button.innerHTML;
+                button.innerHTML = '⏳ Загрузка...';
+                button.disabled = true;
+                
+                // Имитируем задержку API
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Используем mock данные
+                assignees = [...mockAssignees];
+                
+                console.log('👥 Участники чата загружены (MOCK):', assignees);
+                
+                // Обновляем UI
+                if (currentPage === 'assignees') {
+                    showAssigneesPage();
+                }
+                
+                // Обновляем select в форме создания заявки
+                updateAssigneeSelect();
+                
+                // Показываем уведомление об успехе
+                showNotification(`✅ Загружено ${assignees.length} участников чата (MOCK)!`, 'success');
+                
+            } catch (error) {
+                console.error('❌ Ошибка при загрузке участников чата по ID:', error);
+                showNotification(`❌ Ошибка: ${error.message}`, 'error');
+            } finally {
+                // Восстанавливаем кнопку
+                button.innerHTML = '📥 Загрузить';
+                button.disabled = false;
+            }
+        }
+
+        // Update assignee select in create ticket form
+        function updateAssigneeSelect() {
+            const select = document.getElementById('ticketAssignee');
+            if (select) {
+                // Clear existing options
+                select.innerHTML = '<option value="">Выберите ответственного</option>';
+                
+                // Add assignee options
+                assignees.forEach(assignee => {
+                    const option = document.createElement('option');
+                    option.value = assignee.id;
+                    option.textContent = `${assignee.name} (@${assignee.username}) - ${assignee.role}`;
+                    select.appendChild(option);
+                });
+            }
+        }
+
+        // Navigation
+        function showPage(pageName) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('hidden');
+            });
+            
+            // Show selected page
+            document.getElementById(pageName).classList.remove('hidden');
+            
+            // Update navigation buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-gray-100', 'text-gray-800');
+            });
+            
+            // Highlight current page button
+            event.target.classList.remove('bg-gray-100', 'text-gray-800');
+            event.target.classList.add('bg-blue-600', 'text-white');
+            
+            // Load page-specific content
+            switch(pageName) {
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+                case 'tickets':
+                    loadTickets();
+                    break;
+                case 'assignees':
+                    loadAssignees();
+                    break;
+                case 'stats':
+                    loadStats();
+                    break;
+            }
+            
+            currentPage = pageName;
+        }
+
+        // Load dashboard
+        function loadDashboard() {
+            const totalTickets = tickets.length;
+            const inProgressTickets = tickets.filter(t => t.status === 'in_progress').length;
+            const completedTickets = tickets.filter(t => t.status === 'completed').length;
+            
+            document.getElementById('totalTickets').textContent = totalTickets;
+            document.getElementById('inProgressTickets').textContent = inProgressTickets;
+            document.getElementById('completedTickets').textContent = completedTickets;
+            
+            // Create activity chart
+            createActivityChart();
+        }
+
+        // Load tickets
+        function loadTickets() {
+            const ticketsList = document.getElementById('ticketsList');
+            ticketsList.innerHTML = '';
+            
+            if (tickets.length === 0) {
+                ticketsList.innerHTML = '<p class="text-gray-500 text-center py-8">Нет заявок</p>';
+                return;
+            }
+            
+            tickets.forEach(ticket => {
+                const ticketCard = createTicketCard(ticket);
+                ticketsList.appendChild(ticketCard);
+            });
+        }
+
+        // Load assignees
+        function loadAssignees() {
+            const assigneesList = document.getElementById('assigneesList');
+            assigneesList.innerHTML = '';
+            
+            if (assignees.length === 0) {
+                assigneesList.innerHTML = '<p class="text-gray-500 text-center py-8">Нет участников</p>';
+                return;
+            }
+            
+            assignees.forEach(assignee => {
+                const assigneeCard = createAssigneeCard(assignee);
+                assigneesList.appendChild(assigneeCard);
+            });
+        }
+
+        // Load stats
+        function loadStats() {
+            createStatusChart();
+            createAssigneeChart();
+        }
+
+        // Create ticket card
+        function createTicketCard(ticket) {
+            const card = document.createElement('div');
+            card.className = 'bg-white p-4 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow';
+            card.onclick = () => showTicketDetail(ticket);
+            
+            const assignee = assignees.find(a => a.id === ticket.assignee);
+            const assigneeName = assignee ? assignee.name : 'Не назначен';
+            
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="font-semibold text-lg">${ticket.title}</h3>
+                    <span class="px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(ticket.priority)}">${getPriorityText(ticket.priority)}</span>
+                </div>
+                <p class="text-gray-600 text-sm mb-3">${ticket.description.substring(0, 100)}${ticket.description.length > 100 ? '...' : ''}</p>
+                <div class="flex justify-between items-center text-sm text-gray-500">
+                    <span>👤 ${assigneeName}</span>
+                    <span>${new Date(ticket.createdAt).toLocaleDateString()}</span>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Create assignee card
+        function createAssigneeCard(assignee) {
+            const card = document.createElement('div');
+            card.className = 'bg-white p-4 rounded-lg shadow-md';
+            
+            card.innerHTML = `
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <span class="text-2xl">👤</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-1">${assignee.name}</h3>
+                    <p class="text-blue-600 text-sm mb-2">@${assignee.username}</p>
+                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">${assignee.role}</span>
+                    <p class="text-gray-500 text-xs mt-2">${assignee.department}</p>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Show ticket detail
+        function showTicketDetail(ticket) {
+            const assignee = assignees.find(a => a.id === ticket.assignee);
+            const assigneeName = assignee ? assignee.name : 'Не назначен';
+            
+            document.getElementById('modalTitle').textContent = ticket.title;
+            document.getElementById('modalContent').innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Описание</label>
+                        <p class="text-gray-900">${ticket.description}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Приоритет</label>
+                            <span class="px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(ticket.priority)}">${getPriorityText(ticket.priority)}</span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Статус</label>
+                            <span class="px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(ticket.status)}">${getStatusText(ticket.status)}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Ответственный</label>
+                        <p class="text-gray-900">${assigneeName}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Создано</label>
+                            <p class="text-gray-900">${new Date(ticket.createdAt).toLocaleString()}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Обновлено</label>
+                            <p class="text-gray-900">${new Date(ticket.updatedAt).toLocaleString()}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('ticketModal').classList.remove('hidden');
+        }
+
+        // Hide ticket detail modal
+        function hideTicketDetailModal() {
+            document.getElementById('ticketModal').classList.add('hidden');
+        }
+
+        // Utility functions
+        function getPriorityColor(priority) {
+            const colors = {
+                low: 'bg-green-100 text-green-800',
+                medium: 'bg-yellow-100 text-yellow-800',
+                high: 'bg-red-100 text-red-800',
+                critical: 'bg-purple-100 text-purple-800'
+            };
+            return colors[priority] || colors.medium;
+        }
+
+        function getPriorityText(priority) {
+            const texts = {
+                low: '🟢 Низкий',
+                medium: '🟡 Средний',
+                high: '🔴 Высокий',
+                critical: '🚨 Критический'
+            };
+            return texts[priority] || texts.medium;
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                new: 'bg-blue-100 text-blue-800',
+                in_progress: 'bg-yellow-100 text-yellow-800',
+                completed: 'bg-green-100 text-green-800',
+                cancelled: 'bg-red-100 text-red-800'
+            };
+            return colors[status] || colors.new;
+        }
+
+        function getStatusText(status) {
+            const texts = {
+                new: '🆕 Новые',
+                in_progress: '🔄 В работе',
+                completed: '✅ Завершенные',
+                cancelled: '❌ Отмененные'
+            };
+            return texts[status] || texts.new;
+        }
+
+        // Charts
+        function createActivityChart() {
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+                    datasets: [{
+                        label: 'Созданные заявки',
+                        data: [3, 5, 2, 8, 4, 1, 0],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+        }
+
+        function createStatusChart() {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Новые', 'В работе', 'Завершенные', 'Отмененные'],
+                    datasets: [{
+                        data: [3, 2, 5, 1],
+                        backgroundColor: [
+                            'rgb(59, 130, 246)',
+                            'rgb(245, 158, 11)',
+                            'rgb(34, 197, 94)',
+                            'rgb(239, 68, 68)'
+                        ]
+                    }]
+                }
+            });
+        }
+
+        function createAssigneeChart() {
+            const ctx = document.getElementById('assigneeChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: assignees.map(a => a.name),
+                    datasets: [{
+                        label: 'Количество заявок',
+                        data: assignees.map(a => tickets.filter(t => t.assignee === a.id).length),
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 max-w-sm transform transition-all duration-300 translate-x-full`;
+            
+            switch (type) {
+                case 'success':
+                    notification.className += ' bg-green-500 text-white';
+                    break;
+                case 'error':
+                    notification.className += ' bg-red-500 text-white';
+                    break;
+                case 'warning':
+                    notification.className += ' bg-yellow-500 text-white';
+                    break;
+                default:
+                    notification.className += ' bg-blue-500 text-white';
+            }
+            
+            notification.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <span class="text-lg">${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</span>
+                    <p class="text-sm">${message}</p>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-auto text-white hover:text-gray-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load mock data
+            loadChatParticipants();
+            
+            // Create sample tickets
+            tickets = [
+                {
+                    id: 1,
+                    title: 'Проблема с доступом к системе',
+                    description: 'Пользователи не могут войти в систему. Ошибка 403 Forbidden.',
+                    priority: 'high',
+                    status: 'in_progress',
+                    assignee: 135494615,
+                    createdAt: '2024-08-18T10:00:00Z',
+                    updatedAt: '2024-08-18T12:30:00Z'
+                },
+                {
+                    id: 2,
+                    title: 'Обновление базы данных',
+                    description: 'Необходимо обновить структуру базы данных для новых функций.',
+                    priority: 'medium',
+                    status: 'new',
+                    assignee: 8465643840,
+                    createdAt: '2024-08-18T09:00:00Z',
+                    updatedAt: '2024-08-18T09:00:00Z'
+                }
+            ];
+            
+            // Load initial page
+            loadDashboard();
+        });
+    </script>
+</body>
+</html>
