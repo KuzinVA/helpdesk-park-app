@@ -1,0 +1,12 @@
+{
+  "name": "helpdesk-park-backend",
+  "build": {
+    "command": "cd backend && npm ci && npm run build"
+  },
+  "start": {
+    "command": "cd backend && npm run start:prod"
+  },
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

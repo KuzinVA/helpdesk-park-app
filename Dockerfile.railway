@@ -4,15 +4,24 @@ FROM node:18-alpine
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
+# Очищаем npm кэш
+RUN npm cache clean --force
+
 # Копируем только backend файлы
 COPY backend/package*.json ./
-RUN npm ci --only=production
+
+# Устанавливаем зависимости без кэша
+RUN npm ci --no-cache --prefer-offline --only=production
 
 # Копируем backend исходники
 COPY backend/ ./
 
 # Собираем приложение
 RUN npm run build
+
+# Создаем пользователя для безопасности
+RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
+USER nextjs
 
 # Открываем порт
 EXPOSE 3000

@@ -1,13 +1,5 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "cd backend && npm ci && npm run build"
-watchPatterns = ["backend/**"]
 
-[deploy]
-startCommand = "cd backend && npm run start:prod"
-healthcheckPath = "/api/health"
-healthcheckTimeout = 100
-restartPolicyType = "ON_FAILURE"
-
-[env]
-NODE_ENV = "production"
+[start]
+cmd = "cd backend && npm run start:prod"
