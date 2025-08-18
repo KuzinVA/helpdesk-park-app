@@ -1,0 +1,45 @@
+# ========================================
+# ИНТЕГРИРОВАННАЯ MCP СИСТЕМА TELEGRAM
+# ========================================
+
+# ========================================
+# NODE.JS MCP СЕРВЕР (Mini App + Helpdesk)
+# ========================================
+TELEGRAM_BOT_TOKEN=your_bot_token_here
+TELEGRAM_BOT_USERNAME=your_bot_username_here
+FRONTEND_URL=https://your-miniapp-domain.com
+
+# ========================================
+# PYTHON MCP СЕРВЕР (Общие Telegram функции)
+# ========================================
+# Получите эти данные на https://my.telegram.org/apps
+TELEGRAM_API_ID=your_api_id_here
+TELEGRAM_API_HASH=your_api_hash_here
+
+# Сессия Telegram (выберите один из вариантов):
+# Вариант 1: Строка сессии (рекомендуется для production)
+TELEGRAM_SESSION_STRING=your_session_string_here
+
+# Вариант 2: Имя файла сессии (для разработки)
+TELEGRAM_SESSION_NAME=telegram_session
+
+# ========================================
+# ОБЩИЕ НАСТРОЙКИ
+# ========================================
+NODE_ENV=development
+LOG_LEVEL=info
+
+# ========================================
+# ОПЦИОНАЛЬНЫЕ НАСТРОЙКИ
+# ========================================
+# База данных (если нужна)
+# DATABASE_URL=postgresql://user:password@localhost:5432/helpdesk
+
+# Redis (если нужен)
+# REDIS_URL=redis://localhost:6379
+
+# JWT секрет
+# JWT_SECRET=your_jwt_secret_here
+
+# Порт
+# PORT=3000

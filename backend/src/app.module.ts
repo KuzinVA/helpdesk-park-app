@@ -12,6 +12,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { StatsModule } from './stats/stats.module';
 import { TelegramModule } from './telegram/telegram.module';
 import { CommonModule } from './common/common.module';
+import { HealthController } from './health/health.controller';
 
 @Module({
   imports: [
@@ -39,5 +40,6 @@ import { CommonModule } from './common/common.module';
     TelegramModule,
     CommonModule,
   ],
+  controllers: [HealthController],
 })
 export class AppModule {}

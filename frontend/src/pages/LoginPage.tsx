@@ -1,152 +1,180 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { useTelegram } from '@/hooks/useTelegram';
 import { useAuthStore } from '@/stores/authStore';
+import { useTelegram } from '@/hooks/useTelegram';
 
 export const LoginPage: React.FC = () => {
-  const { loginWithTelegram } = useAuth();
-  const { user, isReady, showMainButton, hideMainButton, hapticFeedback, showAlert } = useTelegram();
-  const { isLoading } = useAuthStore();
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const { login, isAuthenticated } = useAuthStore();
+  const { isTelegramApp, initTelegram, user, showAlert } = useTelegram();
+  const [isLoading, setIsLoading] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
-    if (isReady && user) {
-      // Автоматически входим если есть данные пользователя
-      handleAutoLogin();
-    } else if (isReady) {
-      // Показываем кнопку входа
-      showMainButton('Войти через Telegram', handleManualLogin);
+    initTelegram();
+    
+    // Показываем приветствие через небольшую задержку
+    const timer = setTimeout(() => setShowWelcome(true), 300);
+    return () => clearTimeout(timer);
+  }, [initTelegram]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Перенаправление будет обработано в App.tsx
+    }
+  }, [isAuthenticated]);
+
+  const handleTelegramLogin = async () => {
+    if (!isTelegramApp) {
+      showAlert('Это приложение работает только в Telegram. Откройте его через бота @helpdeskParkApp_bot');
+      return;
     }
 
-    return () => {
-      hideMainButton();
-    };
-  }, [isReady, user, showMainButton, hideMainButton]);
+    if (!user) {
+      showAlert('Не удалось получить данные пользователя Telegram');
+      return;
+    }
 
-  const handleAutoLogin = async () => {
+    setIsLoading(true);
     try {
-      setIsLoggingIn(true);
-      hapticFeedback('light');
-      await loginWithTelegram();
+      await login({
+        id: user.id.toString(),
+        firstName: user.first_name,
+        lastName: user.last_name || '',
+        username: user.username || '',
+        photoUrl: user.photo_url || '',
+      });
     } catch (error) {
-      console.error('Auto-login failed:', error);
-      showAlert('Ошибка автоматического входа. Попробуйте войти вручную.');
+      showAlert(`Ошибка входа: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
     } finally {
-      setIsLoggingIn(false);
+      setIsLoading(false);
     }
   };
 
-  const handleManualLogin = async () => {
+  const handleDemoLogin = async () => {
+    setIsLoading(true);
     try {
-      setIsLoggingIn(true);
-      hapticFeedback('medium');
-      await loginWithTelegram();
+      await login({
+        id: 'demo',
+        firstName: 'Демо',
+        lastName: 'Пользователь',
+        username: 'demo_user',
+        photoUrl: '',
+      });
     } catch (error) {
-      console.error('Manual login failed:', error);
-      hapticFeedback('heavy');
-      showAlert('Ошибка входа. Проверьте подключение к интернету и попробуйте снова.');
+      showAlert(`Ошибка входа: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
     } finally {
-      setIsLoggingIn(false);
+      setIsLoading(false);
     }
   };
-
-  if (isLoading || isLoggingIn) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mx-auto mb-6"></div>
-          <p className="text-gray-600 dark:text-gray-300 text-lg">
-            {isLoggingIn ? 'Выполняется вход...' : 'Загрузка...'}
-          </p>
-          {isLoggingIn && (
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">
-              Пожалуйста, подождите
-            </p>
-          )}
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <div className="mx-auto h-20 w-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mb-6">
-            <svg className="h-12 w-12 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-          </div>
-          
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            Helpdesk Park
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
-            Система управления заявками парка аттракционов
-          </p>
-        </div>
-        
-        <div className="bg-white dark:bg-gray-800 py-8 px-6 shadow-xl rounded-2xl border border-gray-200 dark:border-gray-700">
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-              Вход в систему
-            </h2>
+    <div className="min-h-screen flex items-center justify-center apple-container" 
+         style={{ background: 'var(--bg-grouped)' }}>
+      <div className="w-full max-w-sm">
+        {/* Основная карточка */}
+        <div className="apple-card p-8 text-center space-y-6">
+          {/* Логотип */}
+          <div className="space-y-4">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto apple-transition hover:scale-105" 
+                 style={{ backgroundColor: 'var(--system-blue)' }}>
+              <span className="text-white text-2xl font-semibold">H</span>
+            </div>
             
-            {user ? (
-              <div className="mb-6">
-                <div className="flex items-center justify-center mb-4">
-                  {user.photo_url ? (
-                    <img 
-                      src={user.photo_url} 
-                      alt={user.first_name}
-                      className="h-16 w-16 rounded-full border-4 border-blue-200 dark:border-blue-700"
-                    />
-                  ) : (
-                    <div className="h-16 w-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
-                      {user.first_name.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                </div>
-                <p className="text-gray-700 dark:text-gray-300 mb-2">
-                  Привет, <span className="font-semibold">{user.first_name}</span>!
-                </p>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">
-                  Выполняется автоматический вход...
+            <div className="space-y-2">
+              <h1 className="apple-text-large-title" style={{ color: 'var(--label-primary)' }}>
+                Helpdesk Park
+              </h1>
+              <p className="apple-text-footnote" style={{ color: 'var(--label-secondary)' }}>
+                Система управления заявками парка аттракционов
+              </p>
+            </div>
+          </div>
+
+          {/* Приветствие */}
+          {showWelcome && (
+            <div className="fade-in">
+              <div className="apple-card-grouped p-3" 
+                   style={{ backgroundColor: 'var(--fill-quaternary)' }}>
+                <p className="apple-text-footnote" style={{ color: 'var(--label-primary)' }}>
+                  Добро пожаловать в систему управления заявками!
                 </p>
               </div>
-            ) : (
-              <div className="mb-6">
-                <div className="mx-auto h-16 w-16 text-blue-600 dark:text-blue-400 mb-4">
-                  <svg fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
-                  </svg>
+            </div>
+          )}
+
+          {/* Кнопки входа */}
+          <div className="space-y-3">
+            {/* Telegram вход */}
+            <button
+              onClick={handleTelegramLogin}
+              disabled={!isTelegramApp || isLoading}
+              className={`apple-button-primary w-full ${
+                (!isTelegramApp || isLoading) ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <span>Вход...</span>
                 </div>
-                
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                  Войти через Telegram
-                </h3>
-                
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  Используйте кнопку внизу экрана для входа в систему
-                </p>
+              ) : (
+                <span>Войти через Telegram</span>
+              )}
+            </button>
+
+            {/* Демо вход */}
+            <button
+              onClick={handleDemoLogin}
+              disabled={isLoading}
+              className={`apple-button-secondary w-full ${
+                isLoading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+            >
+              <span>Демо режим</span>
+            </button>
+          </div>
+
+          {/* Информация */}
+          <div className="space-y-3 text-xs text-gray-500 dark:text-gray-400">
+            {!isTelegramApp && (
+              <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
+                <p>⚠️ Для полноценной работы откройте приложение через Telegram бота</p>
               </div>
             )}
             
-            <button
-              onClick={handleManualLogin}
-              disabled={isLoggingIn}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:transform-none"
-            >
-              {isLoggingIn ? 'Вход...' : 'Войти через Telegram'}
-            </button>
+            <p>
+              🔐 Вход через Telegram обеспечивает безопасность и удобство
+            </p>
+            
+            <p>
+              📱 Оптимизировано для мобильных устройств
+            </p>
           </div>
         </div>
-        
-        <div className="text-center">
-          <p className="text-gray-500 dark:text-gray-400 text-sm">
-            Система автоматически определит ваши права доступа
-          </p>
+
+        {/* Дополнительная информация */}
+        <div className="mt-6 text-center">
+          <div className="glass-card p-4">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+              🚀 Возможности системы
+            </h3>
+            <div className="grid grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-300">
+              <div>📋 Создание заявок</div>
+              <div>👥 Назначение ответственных</div>
+              <div>📊 Статистика и аналитика</div>
+              <div>🔔 Уведомления</div>
+            </div>
+          </div>
         </div>
+
+        {/* Индикатор загрузки */}
+        {isLoading && (
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="glass-card p-8 text-center">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <p className="text-gray-600 dark:text-gray-300">Выполняется вход...</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

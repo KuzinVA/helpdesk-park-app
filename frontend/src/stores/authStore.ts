@@ -13,6 +13,7 @@ interface AuthActions {
   setUser: (user: User) => void;
   setToken: (token: string) => void;
   logout: () => void;
+  login: (userData: any) => Promise<void>;
   setLoading: (loading: boolean) => void;
   initializeAuth: () => void;
 }
@@ -37,6 +38,23 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       logout: () => {
         set({ user: null, token: null, isAuthenticated: false });
         localStorage.removeItem('auth_token');
+      },
+
+      login: async (userData: any) => {
+        // Temporary mock login for deployment
+        const mockUser: User = {
+          id: userData.id || 'demo',
+          firstName: userData.firstName || 'Demo',
+          lastName: userData.lastName || 'User',
+          username: userData.username || 'demo_user',
+          photoUrl: userData.photoUrl || '',
+        };
+        set({ 
+          user: mockUser, 
+          isAuthenticated: true,
+          token: 'demo_token'
+        });
+        localStorage.setItem('auth_token', 'demo_token');
       },
 
       setLoading: (loading: boolean) => {

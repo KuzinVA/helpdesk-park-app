@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "telegram-miniapp": {
+      "command": "node",
+      "args": ["mcp-server.js"],
+      "env": {
+        "TELEGRAM_BOT_TOKEN": "${TELEGRAM_BOT_TOKEN}",
+        "TELEGRAM_BOT_USERNAME": "${TELEGRAM_BOT_USERNAME}",
+        "FRONTEND_URL": "${FRONTEND_URL}"
+      },
+      "description": "Node.js MCP сервер для Telegram Mini App и Helpdesk функций"
+    },
+    "telegram-python": {
+      "command": "python",
+      "args": ["python-mcp/main.py"],
+      "env": {
+        "TELEGRAM_API_ID": "${TELEGRAM_API_ID}",
+        "TELEGRAM_API_HASH": "${TELEGRAM_API_HASH}",
+        "TELEGRAM_SESSION_STRING": "${TELEGRAM_SESSION_STRING}",
+        "TELEGRAM_SESSION_NAME": "${TELEGRAM_SESSION_NAME}"
+      },
+      "description": "Python MCP сервер для общих Telegram функций (чаты, группы, контакты)"
+    }
+  }
+}

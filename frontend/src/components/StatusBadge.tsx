@@ -1,35 +1,70 @@
 import React from 'react';
-import { TicketStatus } from '@/types';
 
 interface StatusBadgeProps {
-  status: TicketStatus;
+  status: string;
 }
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
-  const getStatusConfig = (status: TicketStatus) => {
+  const getStatusConfig = (status: string) => {
     switch (status) {
-      case 'NEW':
-        return { label: 'Новая', className: 'badge-status-new' };
-      case 'ASSIGNED':
-        return { label: 'Назначена', className: 'badge-status-assigned' };
-      case 'IN_PROGRESS':
-        return { label: 'В работе', className: 'badge-status-in-progress' };
-      case 'ON_HOLD':
-        return { label: 'Приостановлена', className: 'badge-status-on-hold' };
-      case 'RESOLVED':
-        return { label: 'Решена', className: 'badge-status-resolved' };
-      case 'CLOSED':
-        return { label: 'Закрыта', className: 'badge-status-closed' };
+      case 'new':
+        return {
+          label: 'Новая',
+          bgColor: 'var(--system-green)',
+          textColor: 'white'
+        };
+      case 'assigned':
+        return {
+          label: 'Назначена',
+          bgColor: 'var(--system-orange)',
+          textColor: 'white'
+        };
+      case 'in_progress':
+        return {
+          label: 'В работе',
+          bgColor: 'var(--system-blue)',
+          textColor: 'white'
+        };
+      case 'on_hold':
+        return {
+          label: 'На паузе',
+          bgColor: 'var(--system-red)',
+          textColor: 'white'
+        };
+      case 'resolved':
+        return {
+          label: 'Решена',
+          bgColor: 'var(--system-purple)',
+          textColor: 'white'
+        };
+      case 'closed':
+        return {
+          label: 'Закрыта',
+          bgColor: 'var(--system-gray)',
+          textColor: 'white'
+        };
       default:
-        return { label: status, className: 'badge bg-gray-100 text-gray-800' };
+        return {
+          label: 'Неизвестно',
+          bgColor: 'var(--fill-tertiary)',
+          textColor: 'var(--label-secondary)'
+        };
     }
   };
 
   const config = getStatusConfig(status);
 
   return (
-    <span className={config.className}>
-      {config.label}
-    </span>
+    <div 
+      className="inline-flex items-center px-2.5 py-1 rounded-md apple-transition"
+      style={{ 
+        backgroundColor: config.bgColor,
+        color: config.textColor
+      }}
+    >
+      <span className="text-xs font-semibold">
+        {config.label}
+      </span>
+    </div>
   );
 };

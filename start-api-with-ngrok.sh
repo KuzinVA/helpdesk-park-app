@@ -33,25 +33,22 @@ echo "⏳ Ждем запуска ngrok..."
 sleep 5
 
 # Получаем публичный URL
-NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | grep -o '"public_url":"[^"]*"' | cut -d'"' -f4)
+NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | grep -o '"public_url":"[^"]*"' | head -1 | cut -d'"' -f4)
 
 if [ -z "$NGROK_URL" ]; then
     echo "❌ Не удалось получить ngrok URL"
     exit 1
 fi
 
+echo "✅ Ngrok туннель запущен!"
+echo "🌐 Публичный URL: $NGROK_URL"
 echo ""
-echo "🎉 Chat API доступен по адресу:"
-echo "🌐 $NGROK_URL"
+echo "🔧 Теперь обновите мини-приложение:"
+echo "./update-production-url.sh $NGROK_URL"
 echo ""
-echo "📱 Обновите frontend/production.html:"
-echo "   Замените все localhost:3001 на $NGROK_URL"
+echo "📱 Мини-приложение будет использовать реальный API!"
 echo ""
-echo "🧪 Тестирование:"
-echo "   curl '$NGROK_URL/api/health'"
-echo "   curl '$NGROK_URL/api/chat-members?chat_id=-1002978831408'"
-echo ""
-echo "🛑 Для остановки нажмите Ctrl+C"
+echo "Для остановки нажмите Ctrl+C"
 
 # Функция очистки при выходе
 cleanup() {

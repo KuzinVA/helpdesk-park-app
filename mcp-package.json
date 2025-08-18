@@ -1,0 +1,32 @@
+{
+  "name": "telegram-miniapp-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP сервер для работы с Telegram Mini App и чатами",
+  "type": "module",
+  "main": "mcp-server.js",
+  "scripts": {
+    "start": "node mcp-server.js",
+    "dev": "node --watch mcp-server.js",
+    "build": "echo 'No build step needed'",
+    "test": "echo 'No tests specified'"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.4.0"
+  },
+  "devDependencies": {
+    "node-fetch": "^3.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "telegram",
+    "miniapp",
+    "bot",
+    "chat",
+    "helpdesk"
+  ],
+  "author": "Helpdesk Park Team",
+  "license": "MIT"
+}

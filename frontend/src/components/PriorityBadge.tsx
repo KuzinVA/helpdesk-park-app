@@ -1,31 +1,56 @@
 import React from 'react';
-import { TicketPriority } from '@/types';
 
 interface PriorityBadgeProps {
-  priority: TicketPriority;
+  priority: string;
 }
 
 export const PriorityBadge: React.FC<PriorityBadgeProps> = ({ priority }) => {
-  const getPriorityConfig = (priority: TicketPriority) => {
+  const getPriorityConfig = (priority: string) => {
     switch (priority) {
-      case 'LOW':
-        return { label: 'Низкий', className: 'badge-priority-low' };
-      case 'MEDIUM':
-        return { label: 'Средний', className: 'badge-priority-medium' };
-      case 'HIGH':
-        return { label: 'Высокий', className: 'badge-priority-high' };
-      case 'CRITICAL':
-        return { label: 'Критический', className: 'badge-priority-critical' };
+      case 'low':
+        return {
+          label: 'Низкая',
+          bgColor: 'var(--fill-tertiary)',
+          textColor: 'var(--system-green)'
+        };
+      case 'medium':
+        return {
+          label: 'Средняя',
+          bgColor: 'var(--fill-tertiary)',
+          textColor: 'var(--system-orange)'
+        };
+      case 'high':
+        return {
+          label: 'Высокая',
+          bgColor: 'var(--fill-tertiary)',
+          textColor: 'var(--system-red)'
+        };
+      case 'critical':
+        return {
+          label: 'Критическая',
+          bgColor: 'var(--system-red)',
+          textColor: 'white'
+        };
       default:
-        return { label: priority, className: 'badge bg-gray-100 text-gray-800' };
+        return {
+          label: 'Не указана',
+          bgColor: 'var(--fill-quaternary)',
+          textColor: 'var(--label-secondary)'
+        };
     }
   };
 
   const config = getPriorityConfig(priority);
 
   return (
-    <span className={config.className}>
+    <div 
+      className="inline-flex items-center px-2 py-0.5 rounded apple-transition text-xs font-medium"
+      style={{ 
+        backgroundColor: config.bgColor,
+        color: config.textColor
+      }}
+    >
       {config.label}
-    </span>
+    </div>
   );
 };

@@ -199,4 +199,117 @@ export class TelegramService {
     };
     return priorityMap[priority] || priority;
   }
+
+  /**
+   * Получение участников чата
+   */
+  async getChatMembers(chatId: string) {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/getChatAdministrators?chat_id=${chatId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Telegram API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data.ok) {
+        throw new Error(data.description || 'Failed to get chat members');
+      }
+
+      return data.result;
+
+    } catch (error) {
+      this.logger.error('Error getting chat members:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Отправка уведомления об упоминании
+   */
+  async sendMentionNotification(chatId: string, mentionData: {
+    ticket: any;
+    author: any;
+    context: string;
+    mentionedUser: any;
+  }) {
+    const { ticket, author, context, mentionedUser } = mentionData;
+    
+    const contextEmoji = {
+      'ticket_creation': '📝',
+      'comment': '💬',
+      'assignment': '👤',
+    };
+
+    const contextText = {
+      'ticket_creation': 'упомянул вас в новой заявке',
+      'comment': 'упомянул вас в комментарии',
+      'assignment': 'назначил вас ответственным',
+    };
+
+    const message = `${contextEmoji[context] || '🔔'} <b>Упоминание</b>\n\n` +
+      `${author.firstName} ${contextText[context] || 'упомянул вас'}\n\n` +
+      `Заявка #${ticket.id.slice(-6)}\n` +
+      `📝 ${ticket.title}\n` +
+      `🏢 ${ticket.service?.name || 'Не указано'}\n` +
+      `📍 ${ticket.location?.name || 'Не указано'}`;
+
+    const keyboard = {
+      inline_keyboard: [
+        [
+          {
+            text: 'Открыть заявку',
+            web_app: {
+              url: `${this.configService.get('FRONTEND_URL')}/tickets/${ticket.id}`
+            }
+          }
+        ]
+      ]
+    };
+
+    return this.sendMessage(chatId, message, keyboard);
+  }
+
+  /**
+   * Поиск пользователя по username в чате
+   */
+  async findUserInChat(chatId: string, username: string) {
+    try {
+      // Используем метод getChatMember для поиска конкретного пользователя
+      const response = await fetch(
+        `${this.baseUrl}/getChatMember?chat_id=${chatId}&user_id=@${username}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        return null; // Пользователь не найден
+      }
+
+      const data = await response.json();
+      
+      if (!data.ok) {
+        return null;
+      }
+
+      return data.result.user;
+
+    } catch (error) {
+      this.logger.warn(`User @${username} not found in chat ${chatId}`);
+      return null;
+    }
+  }
 }

@@ -4,17 +4,19 @@ interface Ticket {
   id: string;
   title: string;
   description: string;
-  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  status: 'new' | 'open' | 'in_progress' | 'resolved' | 'closed';
   priority: 'low' | 'medium' | 'high' | 'critical';
   createdAt: string;
   updatedAt: string;
   assignedTo?: string;
+  assignee?: { firstName: string; lastName?: string };
+  category?: string;
   tags?: string[];
 }
 
 interface TicketStore {
   tickets: Ticket[];
-  isLoading: boolean;
+  loading: boolean;
   error: string | null;
   fetchTickets: () => Promise<void>;
   createTicket: (ticket: Omit<Ticket, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
@@ -24,10 +26,10 @@ interface TicketStore {
 
 export const useTicketStore = create<TicketStore>((set, get) => ({
   tickets: [],
-  isLoading: false,
+  loading: false,
   error: null,
   fetchTickets: async () => {
-    set({ isLoading: true, error: null });
+    set({ loading: true, error: null });
     try {
       // Здесь будет API вызов
       const mockTickets: Ticket[] = [
@@ -35,20 +37,22 @@ export const useTicketStore = create<TicketStore>((set, get) => ({
           id: '1',
           title: 'Не работает аттракцион',
           description: 'Аттракцион "Колесо обозрения" не запускается',
-          status: 'open',
+          status: 'new',
           priority: 'high',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
+          assignee: { firstName: 'Иван', lastName: 'Механик' },
+          category: 'Техника',
           tags: ['аттракцион', 'техника']
         }
       ];
-      set({ tickets: mockTickets, isLoading: false });
+      set({ tickets: mockTickets, loading: false });
     } catch (error) {
-      set({ error: 'Ошибка загрузки заявок', isLoading: false });
+      set({ error: 'Ошибка загрузки заявок', loading: false });
     }
   },
   createTicket: async (ticket) => {
-    set({ isLoading: true, error: null });
+    set({ loading: true, error: null });
     try {
       // Здесь будет API вызов
       const newTicket: Ticket = {
@@ -59,14 +63,14 @@ export const useTicketStore = create<TicketStore>((set, get) => ({
       };
       set((state) => ({
         tickets: [...state.tickets, newTicket],
-        isLoading: false
+        loading: false
       }));
     } catch (error) {
-      set({ error: 'Ошибка создания заявки', isLoading: false });
+      set({ error: 'Ошибка создания заявки', loading: false });
     }
   },
   updateTicket: async (id, updates) => {
-    set({ isLoading: true, error: null });
+    set({ loading: true, error: null });
     try {
       // Здесь будет API вызов
       set((state) => ({
@@ -75,22 +79,22 @@ export const useTicketStore = create<TicketStore>((set, get) => ({
             ? { ...ticket, ...updates, updatedAt: new Date().toISOString() }
             : ticket
         ),
-        isLoading: false
+        loading: false
       }));
     } catch (error) {
-      set({ error: 'Ошибка обновления заявки', isLoading: false });
+      set({ error: 'Ошибка обновления заявки', loading: false });
     }
   },
   deleteTicket: async (id) => {
-    set({ isLoading: true, error: null });
+    set({ loading: true, error: null });
     try {
       // Здесь будет API вызов
       set((state) => ({
         tickets: state.tickets.filter((ticket) => ticket.id !== id),
-        isLoading: false
+        loading: false
       }));
     } catch (error) {
-      set({ error: 'Ошибка удаления заявки', isLoading: false });
+      set({ error: 'Ошибка удаления заявки', loading: false });
     }
   },
 }));

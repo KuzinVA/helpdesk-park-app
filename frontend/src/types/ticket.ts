@@ -7,12 +7,14 @@ export interface Ticket {
   createdAt: string;
   updatedAt: string;
   assignedTo?: string;
+  assignee?: { firstName: string; lastName?: string };
+  category?: string;
   tags?: string[];
   location?: string;
   attachments?: string[];
 }
 
-export type TicketStatus = 'open' | 'in_progress' | 'resolved' | 'closed';
+export type TicketStatus = 'new' | 'open' | 'in_progress' | 'resolved' | 'closed';
 export type TicketPriority = 'low' | 'medium' | 'high' | 'critical';
 
 export interface CreateTicketRequest {

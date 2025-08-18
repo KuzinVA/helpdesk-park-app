@@ -1,10 +1,11 @@
 export interface User {
   id: string;
-  telegramId: string;
+  telegramId?: string;
   firstName: string;
   lastName?: string;
   username?: string;
-  role: UserRole;
+  photoUrl?: string;
+  role?: UserRole;
   serviceId?: string;
   service?: Service;
 }

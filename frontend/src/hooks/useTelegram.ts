@@ -5,10 +5,20 @@ export const useTelegram = () => {
   const [isReady, setIsReady] = useState(false);
   const [user, setUser] = useState<TelegramUser | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [isTelegramApp, setIsTelegramApp] = useState(false);
 
   const initTelegram = useCallback(() => {
     if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
+      
+      // Проверяем, запущено ли приложение через Telegram
+      const isTelegram = tg.initDataUnsafe.query_id || tg.initDataUnsafe.user;
+      setIsTelegramApp(!!isTelegram);
+      
+      if (!isTelegram) {
+        console.log('⚠️ Приложение запущено не через Telegram Mini App');
+        return;
+      }
       
       // Инициализируем Telegram WebApp
       tg.ready();
@@ -18,6 +28,7 @@ export const useTelegram = () => {
       const telegramUser = tg.initDataUnsafe.user;
       if (telegramUser) {
         setUser(telegramUser);
+        console.log('👤 Пользователь Telegram:', telegramUser);
       }
       
       // Настраиваем тему
@@ -60,7 +71,15 @@ export const useTelegram = () => {
         tg.mainButton.setTextColor('#FFFFFF');
       }
       
-      console.log('Telegram WebApp initialized successfully');
+      // Устанавливаем цвета заголовка и фона
+      tg.setHeaderColor(currentTheme === 'dark' ? '#1F2937' : '#FFFFFF');
+      tg.setBackgroundColor(currentTheme === 'dark' ? '#111827' : '#F9FAFB');
+      
+      console.log('✅ Telegram WebApp initialized successfully');
+      console.log('🎨 Theme:', currentTheme);
+      console.log('📱 Platform: Telegram WebApp');
+    } else {
+      console.log('⚠️ Telegram WebApp API не доступен');
     }
   }, []);
 
@@ -168,6 +187,7 @@ export const useTelegram = () => {
     isReady,
     user,
     theme,
+    isTelegramApp,
     initTelegram,
     showMainButton,
     hideMainButton,

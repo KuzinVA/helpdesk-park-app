@@ -62,7 +62,17 @@ async function setupStartCommand() {
                 [
                     {
                         text: '🚀 Запустить Helpdesk Park',
-                        url: 'https://KuzinVA.github.io/helpdesk-park-app/'
+                        web_app: {
+                            url: 'https://KuzinVA.github.io/helpdesk-park-app/'
+                        }
+                    }
+                ],
+                [
+                    {
+                        text: '📱 Открыть Mini App',
+                        web_app: {
+                            url: 'https://KuzinVA.github.io/helpdesk-park-app/'
+                        }
                     }
                 ],
                 [
@@ -152,6 +162,10 @@ async function setMenuCommands() {
             {
                 command: 'start',
                 description: '🚀 Запустить Helpdesk Park'
+            },
+            {
+                command: 'app',
+                description: '📱 Открыть Mini App'
             },
             {
                 command: 'tickets',
