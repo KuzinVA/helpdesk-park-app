@@ -142,7 +142,6 @@ model Ticket {
   attachments Attachment[]
   auditLogs  AuditLog[]
   tags       TicketTag[]
-  slaPolicy  SlaPolicy?    @relation(fields: [serviceId], references: [serviceId])
 
   @@map("tickets")
 }
@@ -215,6 +214,7 @@ model AuditLog {
   entityType String
   entityId  String
   userId    String
+  ticketId  String?
   oldValues Json?
   newValues Json?
   metadata  Json?
@@ -222,6 +222,7 @@ model AuditLog {
 
   // Relations
   user      User     @relation(fields: [userId], references: [id])
+  ticket    Ticket?  @relation(fields: [ticketId], references: [id])
 
   @@map("audit_logs")
 }
