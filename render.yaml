@@ -58,6 +58,7 @@ services:
   - type: redis
     name: helpdesk-park-redis
     plan: free
+    ipAllowList: []
 
 databases:
   # PostgreSQL база данных
