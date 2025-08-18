@@ -153,8 +153,8 @@ export class ConflictResolutionService {
             action: 'USERNAME_CHANGED',
             entityType: 'USER',
             entityId: telegramId,
-            oldValue: oldUsername,
-            newValue: newUsername,
+            oldValues: oldUsername,
+            newValues: newUsername,
             userId: telegramId,
           },
         });

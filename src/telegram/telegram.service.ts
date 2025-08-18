@@ -7,6 +7,7 @@ export class TelegramService {
   private readonly logger = new Logger(TelegramService.name);
   private readonly botToken: string;
   private readonly botUsername: string;
+  private readonly baseUrl: string;
 
   constructor(
     private readonly configService: ConfigService,
@@ -14,6 +15,7 @@ export class TelegramService {
   ) {
     this.botToken = this.configService.get<string>('TELEGRAM_BOT_TOKEN');
     this.botUsername = this.configService.get<string>('TELEGRAM_BOT_USERNAME');
+    this.baseUrl = `https://api.telegram.org/bot${this.botToken}`;
   }
 
   async sendMessage(chatId: string, message: string, keyboard?: any) {

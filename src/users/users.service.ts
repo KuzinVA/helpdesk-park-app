@@ -157,17 +157,18 @@ export class UsersService {
     });
   }
 
-  private canAccessUser(user: any, userId: string, userRole: UserRole): boolean {
+  private async canAccessUser(user: any, userId: string, userRole: UserRole): Promise<boolean> {
     if (userRole === 'ADMIN') return true;
     if (user.id === userId) return true;
     if (userRole === 'SERVICE_LEADER' && user.serviceId) {
       // Проверяем, что пользователь в той же службе
-      return this.prisma.user.findFirst({
+      const foundUser = await this.prisma.user.findFirst({
         where: {
           id: userId,
           serviceId: user.serviceId,
         },
-      }).then(Boolean);
+      });
+      return !!foundUser;
     }
     return false;
   }

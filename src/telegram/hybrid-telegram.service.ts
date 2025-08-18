@@ -244,7 +244,7 @@ export class HybridTelegramService {
   ) {
     try {
       // 1. Отправка основного уведомления через Node.js MCP
-      const notificationResult = await this.sendTicketNotification(chatId, ticket, notificationType);
+      const notificationResult = await this.sendTicketNotification(chatId, ticket, notificationType as any);
 
       // 2. Если нужно добавить медиа, используем Python MCP
       if (includeMedia && this.isPythonMCPReady()) {

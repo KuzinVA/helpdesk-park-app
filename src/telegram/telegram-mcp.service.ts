@@ -21,7 +21,7 @@ export class TelegramMCPService {
    * @param mcpClient Экземпляр MCP клиента
    */
   setMCPClient(mcpClient: any) {
-    this.mcpClient = mcpClient;
+    (this as any).mcpClient = mcpClient;
     this.logger.log('MCP client set');
   }
 

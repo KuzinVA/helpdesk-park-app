@@ -1,10 +1,12 @@
-import { Controller, Post, Body, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, UseGuards, Logger } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { TelegramService } from './telegram.service';
 
 @ApiTags('Telegram Bot')
 @Controller('telegram')
 export class TelegramController {
+  private readonly logger = new Logger(TelegramController.name);
+  
   constructor(private readonly telegramService: TelegramService) {}
 
   @Post('webhook')

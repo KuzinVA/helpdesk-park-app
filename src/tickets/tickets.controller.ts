@@ -76,8 +76,8 @@ export class TicketsController {
   async updateStatus(
     @Param('id') id: string,
     @Body('status') status: TicketStatus,
-    @Body('comment') comment?: string,
     @CurrentUser() user: any,
+    @Body('comment') comment?: string,
   ) {
     return this.ticketsService.updateStatus(
       id,

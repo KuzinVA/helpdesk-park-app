@@ -7,7 +7,7 @@ export class StatsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getOverview(userId: string, userRole: string, filters?: any) {
-    const where: any = this.buildWhereClause(userId, userRole, filters);
+    const where: any = await this.buildWhereClause(userId, userRole, filters);
 
     const [
       totalTickets,
@@ -91,7 +91,7 @@ export class StatsService {
     return metrics;
   }
 
-  private buildWhereClause(userId: string, userRole: string, filters?: any) {
+  private async buildWhereClause(userId: string, userRole: string, filters?: any) {
     const where: any = {};
 
     // Фильтры по ролям
@@ -106,11 +106,11 @@ export class StatsService {
         { status: { in: ['NEW', 'ASSIGNED'] } },
       ];
     } else if (userRole === 'SERVICE_LEADER') {
-      const user = this.prisma.user.findUnique({
+      const user = await this.prisma.user.findUnique({
         where: { id: userId },
         select: { serviceId: true },
       });
-      if (user) {
+      if (user?.serviceId) {
         where.serviceId = user.serviceId;
       }
     }

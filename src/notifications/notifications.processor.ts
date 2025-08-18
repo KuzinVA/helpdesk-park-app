@@ -26,12 +26,6 @@ export class NotificationsProcessor {
         where: { id: notificationId },
         include: { 
           user: true,
-          ticket: {
-            include: {
-              service: true,
-              location: true,
-            }
-          }
         },
       });
 
