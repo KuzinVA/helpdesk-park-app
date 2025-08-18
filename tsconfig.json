@@ -27,5 +27,7 @@
       "@/locations/*": ["src/locations/*"],
       "@/notifications/*": ["src/notifications/*"]
     }
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
