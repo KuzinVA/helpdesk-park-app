@@ -1,0 +1,21 @@
+# Dockerfile специально для Railway (только backend)
+FROM node:18-alpine
+
+# Устанавливаем рабочую директорию
+WORKDIR /app
+
+# Копируем только backend файлы
+COPY backend/package*.json ./
+RUN npm ci --only=production
+
+# Копируем backend исходники
+COPY backend/ ./
+
+# Собираем приложение
+RUN npm run build
+
+# Открываем порт
+EXPOSE 3000
+
+# Запускаем приложение
+CMD ["npm", "run", "start:prod"]
