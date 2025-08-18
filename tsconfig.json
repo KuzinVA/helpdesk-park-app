@@ -17,6 +17,8 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
+    "skipLibCheck": true,
+    "noEmitOnError": false,
     "paths": {
       "@/*": ["src/*"],
       "@/common/*": ["src/common/*"],
