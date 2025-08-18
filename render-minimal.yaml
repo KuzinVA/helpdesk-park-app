@@ -1,5 +1,5 @@
 services:
-  # Backend API (NestJS)
+  # Backend API (NestJS) - объединенный с Chat API
   - type: web
     name: helpdesk-park-api
     env: node
@@ -19,11 +19,6 @@ services:
         sync: false  # будет установлен вручную
       - key: FRONTEND_URL
         value: https://helpdesk-park-frontend.onrender.com
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: helpdesk-park-redis
-          property: connectionString
     healthCheckPath: /api/health
 
   # Frontend (React + Vite)
@@ -38,27 +33,6 @@ services:
         value: https://helpdesk-park-api.onrender.com/api
       - key: VITE_TELEGRAM_BOT_USERNAME
         value: helpdeskParkApp_bot
-
-  # Chat API для Telegram бота
-  - type: web
-    name: helpdesk-park-chat-api
-    env: node
-    plan: starter
-    buildCommand: npm ci
-    startCommand: node chat-api.js
-    envVars:
-      - key: TELEGRAM_BOT_TOKEN
-        sync: false
-      - key: API_URL
-        value: https://helpdesk-park-api.onrender.com/api
-      - key: FRONTEND_URL
-        value: https://helpdesk-park-frontend.onrender.com
-
-  # Redis для кэширования и очередей
-  - type: redis
-    name: helpdesk-park-redis
-    plan: starter
-    ipAllowList: []
 
 databases:
   # PostgreSQL база данных
