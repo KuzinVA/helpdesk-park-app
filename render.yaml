@@ -19,6 +19,11 @@ services:
         sync: false  # будет установлен вручную
       - key: FRONTEND_URL
         value: https://helpdesk-park-frontend.onrender.com
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: helpdesk-park-redis
+          property: connectionString
     healthCheckPath: /api/health
 
   # Frontend (React + Vite)
@@ -49,15 +54,14 @@ services:
       - key: FRONTEND_URL
         value: https://helpdesk-park-frontend.onrender.com
 
+  # Redis для кэширования и очередей
+  - type: redis
+    name: helpdesk-park-redis
+    plan: free
+
 databases:
   # PostgreSQL база данных
   - name: helpdesk-park-db
     plan: free
     databaseName: helpdesk_park
     user: helpdesk_user
-
-# Redis для кэширования и очередей (опционально)
-  - type: redis
-    name: helpdesk-park-redis
-    plan: free
-    maxmemoryPolicy: allkeys-lru
