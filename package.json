@@ -12,11 +12,11 @@
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",
-    "build": "npm run build:backend && npm run build:frontend",
+    "build": "cd backend && npm ci && npm run build",
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "cd backend && npm run build",
-    "start": "node chat-api.js",
-    "start:prod": "node chat-api.js",
+    "start": "cd backend && npm run start:prod",
+    "start:prod": "cd backend && npm run start:prod",
     "docker:start": "docker-compose up -d",
     "docker:stop": "docker-compose down",
     "test": "npm run test:backend && npm run test:frontend",
@@ -26,7 +26,9 @@
     "db:migrate": "cd backend && npm run db:migrate",
     "db:seed": "cd backend && npm run db:seed",
     "db:reset": "cd backend && npm run db:reset",
-    "deploy:render": "git push origin main"
+    "deploy:render": "git push origin main",
+    "deploy:railway": "git push origin main",
+    "deploy:vercel": "git push origin main"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
