@@ -108,3 +108,4 @@ Thumbs.db
 
 # Prisma
 prisma/migrations/
+python-mcp/

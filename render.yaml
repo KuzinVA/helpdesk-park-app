@@ -56,10 +56,8 @@ databases:
     databaseName: helpdesk_park
     user: helpdesk_user
 
-# Дополнительные настройки
-buildFilter:
-  paths:
-    - backend/**
-    - frontend/**
-    - chat-api.js
-    - package.json
+# Redis для кэширования и очередей (опционально)
+  - type: redis
+    name: helpdesk-park-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
