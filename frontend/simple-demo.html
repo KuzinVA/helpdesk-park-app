@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Helpdesk Park">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#007AFF">
+    
+    <title>Helpdesk Park - Apple Style Demo</title>
+    
+    <!-- Telegram WebApp Script -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* Apple-style CSS Variables */
+        :root {
+            --system-blue: #007AFF;
+            --system-green: #34C759;
+            --system-orange: #FF9500;
+            --system-red: #FF3B30;
+            --system-background: #F2F2F7;
+            --secondary-system-background: #FFFFFF;
+            --tertiary-system-background: #F2F2F7;
+            --label-primary: #000000;
+            --label-secondary: #3C3C43;
+            --label-tertiary: #787880;
+            --label-quaternary: #C7C7CC;
+            --separator-non-opaque: #C6C6C8;
+            --fill-quaternary: #E5E5EA;
+        }
+
+        /* Apple-style Components */
+        .apple-card {
+            background-color: var(--secondary-system-background);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--separator-non-opaque);
+        }
+
+        .apple-button-primary {
+            background-color: var(--system-blue);
+            color: white;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .apple-button-secondary {
+            background-color: var(--secondary-system-background);
+            color: var(--system-blue);
+            border: 1px solid var(--system-blue);
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .apple-transition {
+            transition: all 0.2s ease;
+        }
+
+        .apple-text-large-title {
+            font-size: 34px;
+            font-weight: 700;
+            line-height: 41px;
+            letter-spacing: 0.37px;
+        }
+
+        .apple-text-title-1 {
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 34px;
+            letter-spacing: 0.36px;
+        }
+
+        .apple-text-title-2 {
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 28px;
+            letter-spacing: 0.35px;
+        }
+
+        .apple-text-title-3 {
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 24px;
+            letter-spacing: 0.38px;
+        }
+
+        .apple-text-headline {
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 22px;
+            letter-spacing: -0.41px;
+        }
+
+        .apple-text-body {
+            font-size: 17px;
+            font-weight: 400;
+            line-height: 22px;
+            letter-spacing: -0.41px;
+        }
+
+        .apple-text-callout {
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 21px;
+            letter-spacing: -0.32px;
+        }
+
+        .apple-text-subhead {
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 20px;
+            letter-spacing: -0.24px;
+        }
+
+        .apple-text-footnote {
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 18px;
+            letter-spacing: -0.08px;
+        }
+
+        .apple-text-caption-1 {
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 16px;
+            letter-spacing: 0px;
+        }
+
+        .apple-text-caption-2 {
+            font-size: 11px;
+            font-weight: 400;
+            line-height: 13px;
+            letter-spacing: 0.07px;
+        }
+
+        /* Telegram Mini App Detection */
+        .telegram-app {
+            display: none;
+        }
+
+        .telegram-app.active {
+            display: block;
+        }
+
+        .web-app {
+            display: block;
+        }
+
+        .telegram-app.active + .web-app {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-system-background min-h-screen">
+    <div id="app" class="min-h-screen">
+        <!-- Telegram Mini App Content -->
+        <div id="telegram-content" class="telegram-app">
+            <div class="max-w-md mx-auto p-4 space-y-6">
+                <!-- Header -->
+                <div class="text-center">
+                    <div class="mx-auto w-20 h-20 bg-system-blue rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-white text-3xl font-bold">H</span>
+                    </div>
+                    <h1 class="apple-text-large-title text-label-primary mb-2">
+                        Helpdesk Park
+                    </h1>
+                    <p class="apple-text-body text-label-secondary">
+                        Система управления заявками для парка аттракционов
+                    </p>
+                </div>
+
+                <!-- Login Card -->
+                <div class="apple-card p-8 space-y-6">
+                    <div class="text-center">
+                        <h2 class="apple-text-title-2 text-label-primary mb-2">
+                            Войти в систему
+                        </h2>
+                        <p class="apple-text-callout text-label-tertiary">
+                            Используйте Telegram для входа
+                        </p>
+                    </div>
+
+                    <!-- Telegram Login Button -->
+                    <button id="telegram-login" class="w-full apple-button-primary py-4 text-lg font-medium hover:scale-105 apple-transition">
+                        <div class="flex items-center justify-center space-x-3">
+                            <span class="text-xl">📱</span>
+                            <span>Войти через Telegram</span>
+                        </div>
+                    </button>
+
+                    <!-- Info -->
+                    <div class="text-center">
+                        <p class="apple-text-footnote text-label-tertiary">
+                            Нажмите кнопку выше для входа в систему
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div class="space-y-4">
+                    <div class="apple-card p-4">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl">🚀</span>
+                            <div>
+                                <h3 class="apple-text-headline text-label-primary">
+                                    Быстрое создание заявок
+                                </h3>
+                                <p class="apple-text-caption-1 text-label-tertiary">
+                                    Создавайте заявки за 30 секунд
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="apple-card p-4">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl">👥</span>
+                            <div>
+                                <h3 class="apple-text-headline text-label-primary">
+                                    Упоминания @username
+                                </h3>
+                                <p class="apple-text-caption-1 text-label-tertiary">
+                                    Быстро назначайте ответственных
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="apple-card p-4">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl">📊</span>
+                            <div>
+                                <h3 class="apple-text-headline text-label-primary">
+                                    Статистика и аналитика
+                                </h3>
+                                <p class="apple-text-caption-1 text-label-tertiary">
+                                    Отслеживайте эффективность работы
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Web App Content -->
+        <div id="web-content" class="web-app">
+            <div class="max-w-md mx-auto p-4 space-y-6">
+                <!-- Header -->
+                <div class="text-center">
+                    <div class="mx-auto w-20 h-20 bg-system-blue rounded-2xl flex items-center justify-center mb-6">
+                        <span class="text-white text-3xl font-bold">H</span>
+                    </div>
+                    <h1 class="apple-text-large-title text-label-primary mb-2">
+                        Helpdesk Park
+                    </h1>
+                    <p class="apple-text-body text-label-secondary">
+                        Система управления заявками для парка аттракционов
+                    </p>
+                </div>
+
+                <!-- Info Card -->
+                <div class="apple-card p-8 space-y-6">
+                    <div class="text-center">
+                        <h2 class="apple-text-title-2 text-label-primary mb-2">
+                            Откройте в Telegram
+                        </h2>
+                        <p class="apple-text-callout text-label-tertiary">
+                            Для полного функционала откройте приложение в Telegram
+                        </p>
+                    </div>
+
+                    <!-- Demo Button -->
+                    <button id="demo-login" class="w-full apple-button-secondary py-4 text-lg font-medium hover:scale-105 apple-transition">
+                        <div class="flex items-center justify-center space-x-3">
+                            <span class="text-xl">🧪</span>
+                            <span>Демо-режим</span>
+                        </div>
+                    </button>
+
+                    <!-- Info -->
+                    <div class="text-center">
+                        <p class="apple-text-footnote text-label-tertiary">
+                            Это демо-версия. Полный функционал доступен в Telegram
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div class="space-y-4">
+                    <div class="apple-card p-4">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl">🚀</span>
+                            <div>
+                                <h3 class="apple-text-headline text-label-primary">
+                                    Быстрое создание заявок
+                                </h3>
+                                <p class="apple-text-caption-1 text-label-tertiary">
+                                    Создавайте заявки за 30 секунд
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="apple-card p-4">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl">👥</span>
+                            <div>
+                                <h3 class="apple-text-headline text-label-primary">
+                                    Упоминания @username
+                                </h3>
+                                <p class="apple-text-caption-1 text-label-tertiary">
+                                    Быстро назначайте ответственных
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="apple-card p-4">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl">📊</span>
+                            <div>
+                                <h3 class="apple-text-headline text-label-primary">
+                                    Статистика и аналитика
+                                </h3>
+                                <p class="apple-text-caption-1 text-label-tertiary">
+                                    Отслеживайте эффективность работы
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center py-8">
+            <p class="apple-text-caption-1 text-label-quaternary">
+                © 2024 Helpdesk Park. Все права защищены.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Telegram WebApp Detection
+        const tg = window.Telegram?.WebApp;
+        
+        if (tg && tg.initDataUnsafe?.query_id) {
+            // Running in Telegram Mini App
+            document.getElementById('telegram-content').classList.add('active');
+            
+            // Initialize Telegram WebApp
+            tg.ready();
+            tg.expand();
+            
+            // Set theme colors
+            const isDark = tg.colorScheme === 'dark';
+            document.documentElement.style.setProperty('--system-background', isDark ? '#000000' : '#F2F2F7');
+            document.documentElement.style.setProperty('--secondary-system-background', isDark ? '#1C1C1E' : '#FFFFFF');
+            document.documentElement.style.setProperty('--label-primary', isDark ? '#FFFFFF' : '#000000');
+            document.documentElement.style.setProperty('--label-secondary', isDark ? '#EBEBF5' : '#3C3C43');
+            
+            // Handle login button
+            document.getElementById('telegram-login').addEventListener('click', () => {
+                tg.showAlert('Вход через Telegram инициирован!');
+                tg.HapticFeedback.impactOccurred('medium');
+            });
+            
+        } else {
+            // Running in regular web browser
+            document.getElementById('web-content').classList.add('active');
+            
+            // Handle demo button
+            document.getElementById('demo-login').addEventListener('click', () => {
+                alert('Демо-режим активирован! Это тестовая версия без backend.');
+            });
+        }
+        
+        // Add some interactive effects
+        document.querySelectorAll('.apple-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-2px)';
+                card.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+                card.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)';
+            });
+        });
+    </script>
+</body>
+</html>
