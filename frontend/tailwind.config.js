@@ -7,73 +7,107 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Apple System Colors
+        // System Colors
         'system-blue': '#007AFF',
         'system-green': '#34C759',
-        'system-indigo': '#5856D6',
         'system-orange': '#FF9500',
-        'system-pink': '#FF2D92',
-        'system-purple': '#AF52DE',
         'system-red': '#FF3B30',
-        'system-teal': '#5AC8FA',
-        'system-yellow': '#FFCC00',
+        'system-purple': '#AF52DE',
+        'system-pink': '#FF2D92',
+        'system-yellow': '#FFCC02',
         
-        // Apple Label Colors
+        // System Backgrounds
+        'system-background': '#F2F2F7',
+        'system-secondary-background': '#FFFFFF',
+        'system-tertiary-background': '#F2F2F7',
+        
+        // System Labels
         'label-primary': '#000000',
         'label-secondary': '#3C3C43',
-        'label-tertiary': '#787880',
-        'label-quaternary': '#9E9EA3',
+        'label-tertiary': '#8E8E93',
+        'label-quaternary': '#C7C7CC',
         
-        // Apple Fill Colors
-        'fill-quaternary': '#F2F2F7',
-        'fill-tertiary': '#E5E5EA',
-        'fill-secondary': '#D1D1D6',
-        'fill-primary': '#C7C7CC',
-        
-        // Apple Separator Colors
+        // System Separators
         'separator-opaque': '#C6C6C8',
         'separator-non-opaque': '#C6C6C8',
         
-        // Apple Background Colors
-        'system-background': '#FFFFFF',
-        'secondary-system-background': '#F2F2F7',
-        'tertiary-system-background': '#FFFFFF',
-        
-        // Apple Grouped Background Colors
-        'system-grouped-background': '#F2F2F7',
-        'secondary-system-grouped-background': '#FFFFFF',
-        'tertiary-system-grouped-background': '#F2F2F7',
+        // System Fill
+        'system-fill': '#787880',
+        'system-fill-secondary': '#F2F2F7',
+        'system-fill-tertiary': '#E5E5EA',
+        'system-fill-quaternary': '#D1D1D6',
       },
       fontFamily: {
-        'sf-pro': ['SF Pro Display', 'SF Pro Text', 'system-ui', 'sans-serif'],
-        'sf-pro-text': ['SF Pro Text', 'system-ui', 'sans-serif'],
-        'sf-pro-display': ['SF Pro Display', 'system-ui', 'sans-serif'],
-      },
-      boxShadow: {
-        'apple': '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)',
-        'apple-lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-        'apple-xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        'sf-pro': ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'sans-serif'],
       },
       borderRadius: {
-        'apple': '12px',
-        'apple-lg': '16px',
-        'apple-xl': '20px',
+        '12': '12px',
+        '14': '14px',
+        '16': '16px',
+        '24': '24px',
+        '28': '28px',
+      },
+      boxShadow: {
+        'apple': '0 2px 20px rgba(0, 0, 0, 0.08)',
+        'apple-hover': '0 8px 30px rgba(0, 0, 0, 0.12)',
+        'apple-button': '0 4px 20px rgba(0, 122, 255, 0.3)',
+        'apple-button-hover': '0 6px 25px rgba(0, 122, 255, 0.4)',
+        'apple-header': '0 4px 20px rgba(0, 0, 0, 0.1)',
+      },
+      backdropBlur: {
+        '20': '20px',
       },
       animation: {
-        'apple-fade-in': 'appleFadeIn 0.3s ease-out',
-        'apple-scale-in': 'appleScaleIn 0.2s ease-out',
+        'spin': 'spin 1s linear infinite',
+        'bounce-gentle': 'bounce 2s ease-in-out infinite',
+        'pulse-gentle': 'pulse 3s ease-in-out infinite',
       },
-      keyframes: {
-        appleFadeIn: {
-          '0%': { opacity: '0', transform: 'translateY(10px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
-        appleScaleIn: {
-          '0%': { opacity: '0', transform: 'scale(0.95)' },
-          '100%': { opacity: '1', transform: 'scale(1)' },
-        },
+      transitionTimingFunction: {
+        'apple': 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+      spacing: {
+        '18': '4.5rem',
+        '88': '22rem',
+      },
+      zIndex: {
+        '1000': '1000',
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // Custom utilities
+    function({ addUtilities }) {
+      const newUtilities = {
+        '.line-clamp-1': {
+          'overflow': 'hidden',
+          'display': '-webkit-box',
+          '-webkit-box-orient': 'vertical',
+          '-webkit-line-clamp': '1',
+        },
+        '.line-clamp-2': {
+          'overflow': 'hidden',
+          'display': '-webkit-box',
+          '-webkit-box-orient': 'vertical',
+          '-webkit-line-clamp': '2',
+        },
+        '.line-clamp-3': {
+          'overflow': 'hidden',
+          'display': '-webkit-box',
+          '-webkit-box-orient': 'vertical',
+          '-webkit-line-clamp': '3',
+        },
+        '.glass': {
+          'background': 'rgba(255, 255, 255, 0.1)',
+          'backdrop-filter': 'blur(20px)',
+          'border': '1px solid rgba(255, 255, 255, 0.2)',
+        },
+        '.glass-dark': {
+          'background': 'rgba(0, 0, 0, 0.1)',
+          'backdrop-filter': 'blur(20px)',
+          'border': '1px solid rgba(255, 255, 255, 0.1)',
+        },
+      }
+      addUtilities(newUtilities)
+    }
+  ],
 }

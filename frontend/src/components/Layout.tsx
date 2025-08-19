@@ -1,138 +1,178 @@
-import React, { useState } from 'react';
-import { Link, useLocation, Outlet } from 'react-router-dom';
+import React, { useState, ReactNode } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { useTelegram } from '../hooks/useTelegram';
 
-const Layout: React.FC = () => {
-  const { user, logout } = useAuthStore();
-  const { isTelegramApp, expand } = useTelegram();
+interface LayoutProps {
+  children: ReactNode;
+}
+
+// 🎨 Mobile-first Layout с Apple-style дизайном
+const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const navigate = useNavigate();
   const location = useLocation();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, logout } = useAuthStore();
+  const { hapticFeedback } = useTelegram();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const navigation = [
-    { name: 'Заявки', href: '/tickets', icon: '📋' },
-    { name: 'Статистика', href: '/stats', icon: '📊' },
-    { name: 'Профиль', href: '/profile', icon: '👤' },
-  ];
-
-  const isActive = (path: string) => location.pathname === path;
+  const handleNavigation = (path: string) => {
+    if (hapticFeedback) {
+      hapticFeedback.impactOccurred('light');
+    }
+    navigate(path);
+    setIsMenuOpen(false);
+  };
 
   const handleLogout = () => {
-    logout();
-    if (isTelegramApp) {
-      expand();
+    if (hapticFeedback) {
+      hapticFeedback.impactOccurred('medium');
     }
+    logout();
+    navigate('/login');
+  };
+
+  const isActive = (path: string) => {
+    return location.pathname === path;
   };
 
   return (
     <div className="min-h-screen bg-system-background">
-      {/* Header */}
-      <header className="bg-secondary-system-background border-b border-separator-non-opaque">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center">
-              <Link to="/" className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-system-blue rounded-lg flex items-center justify-center">
-                  <span className="text-white text-lg font-bold">H</span>
-                </div>
-                <span className="apple-text-headline text-label-primary">
-                  Helpdesk Park
-                </span>
-              </Link>
+      {/* Mobile Header */}
+      <header className="mobile-header">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+              <span className="text-2xl">🎠</span>
             </div>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-8">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg apple-transition ${
-                    isActive(item.href)
-                      ? 'bg-system-blue text-white'
-                      : 'text-label-secondary hover:text-label-primary hover:bg-fill-quaternary'
-                  }`}
-                >
-                  <span>{item.icon}</span>
-                  <span className="apple-text-subheadline">{item.name}</span>
-                </Link>
-              ))}
-            </nav>
-
-            {/* User Menu */}
-            <div className="flex items-center space-x-4">
-              {user && (
-                <div className="flex items-center space-x-3">
-                  <div className="text-right">
-                    <div className="apple-text-subheadline text-label-primary">
-                      {user.firstName} {user.lastName}
-                    </div>
-                    <div className="apple-text-caption-1 text-label-tertiary">
-                      {user.role}
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="apple-button-secondary px-4 py-2"
-                  >
-                    Выйти
-                  </button>
-                </div>
-              )}
-
-              {/* Mobile menu button */}
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2 rounded-lg text-label-secondary hover:text-label-primary hover:bg-fill-quaternary"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
+            <div>
+              <h1 className="apple-text-title-2 text-white font-bold">Helpdesk Park</h1>
+              <p className="apple-text-caption-1 text-white/80">
+                {user?.firstName} {user?.lastName}
+              </p>
             </div>
+          </div>
+          
+          {/* Menu Button */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center"
+          >
+            <span className="text-white text-sm">☰</span>
+          </button>
+        </div>
+
+        {/* Search Bar */}
+        <div className="mt-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Поиск заявок, пользователей..."
+              className="search-bar w-full pl-10"
+            />
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-label-tertiary">
+              🔍
+            </span>
           </div>
         </div>
       </header>
 
-      {/* Mobile Navigation */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden bg-secondary-system-background border-b border-separator-non-opaque">
-          <nav className="px-4 py-2 space-y-1">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center space-x-3 px-3 py-2 rounded-lg apple-transition ${
-                  isActive(item.href)
-                    ? 'bg-system-blue text-white'
-                    : 'text-label-secondary hover:text-label-primary hover:bg-fill-quaternary'
-                }`}
+      {/* Main Content */}
+      <main className="pb-24">
+        {children}
+      </main>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="mobile-nav">
+        <div className="flex justify-around">
+          <button
+            onClick={() => handleNavigation('/dashboard')}
+            className={`mobile-nav-item ${isActive('/dashboard') ? 'active' : ''}`}
+          >
+            <span className="text-xl mb-1">🏠</span>
+            <span className="apple-text-caption-2">Дашборд</span>
+          </button>
+
+          <button
+            onClick={() => handleNavigation('/tickets')}
+            className={`mobile-nav-item ${isActive('/tickets') ? 'active' : ''}`}
+          >
+            <span className="text-xl mb-1">📋</span>
+            <span className="apple-text-caption-2">Заявки</span>
+          </button>
+
+          <button
+            onClick={() => handleNavigation('/tickets/create')}
+            className="mobile-nav-item"
+          >
+            <div className="w-12 h-12 bg-system-blue rounded-full flex items-center justify-center mb-1">
+              <span className="text-white text-xl">+</span>
+            </div>
+            <span className="apple-text-caption-2">Создать</span>
+          </button>
+
+          <button
+            onClick={() => handleNavigation('/stats')}
+            className={`mobile-nav-item ${isActive('/stats') ? 'active' : ''}`}
+          >
+            <span className="text-xl mb-1">📊</span>
+            <span className="apple-text-caption-2">Статистика</span>
+          </button>
+
+          <button
+            onClick={() => handleNavigation('/profile')}
+            className={`mobile-nav-item ${isActive('/profile') ? 'active' : ''}`}
+          >
+            <span className="text-xl mb-1">👤</span>
+            <span className="apple-text-caption-2">Профиль</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Menu Overlay */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50" onClick={() => setIsMenuOpen(false)}>
+          <div className="absolute right-4 top-20 bg-system-secondary-background rounded-16 p-4 min-w-48 shadow-lg">
+            <div className="space-y-2">
+              <button
+                onClick={() => handleNavigation('/profile')}
+                className="w-full text-left p-3 rounded-12 hover:bg-system-fill-secondary apple-transition"
               >
-                <span>{item.icon}</span>
-                <span className="apple-text-subheadline">{item.name}</span>
-              </Link>
-            ))}
-          </nav>
+                <div className="flex items-center space-x-3">
+                  <span>👤</span>
+                  <span className="apple-text-body">Профиль</span>
+                </div>
+              </button>
+              
+              <button
+                onClick={() => handleNavigation('/stats')}
+                className="w-full text-left p-3 rounded-12 hover:bg-system-fill-secondary apple-transition"
+              >
+                <div className="flex items-center space-x-3">
+                  <span>📊</span>
+                  <span className="apple-text-body">Статистика</span>
+                </div>
+              </button>
+              
+              <div className="border-t border-separator-opaque my-2"></div>
+              
+              <button
+                onClick={handleLogout}
+                className="w-full text-left p-3 rounded-12 hover:bg-system-fill-secondary apple-transition text-system-red"
+              >
+                <div className="flex items-center space-x-3">
+                  <span>🚪</span>
+                  <span className="apple-text-body">Выйти</span>
+                </div>
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Outlet />
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-secondary-system-background border-t border-separator-non-opaque mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="text-center">
-            <p className="apple-text-caption-1 text-label-tertiary">
-              © 2024 Helpdesk Park. Все права защищены.
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Floating Action Button */}
+      <div className="fab" onClick={() => handleNavigation('/tickets/create')}>
+        <span>+</span>
+      </div>
     </div>
   );
 };
