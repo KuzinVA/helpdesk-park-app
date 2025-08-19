@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { useTelegram } from '../hooks/useTelegram';
 
+// 🎨 Apple-style дизайн обновлен - современный интерфейс в стиле iOS
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, mockLogin } = useAuthStore();
