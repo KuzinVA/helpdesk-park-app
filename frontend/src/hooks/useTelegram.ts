@@ -80,20 +80,6 @@ interface TelegramWebApp {
   isVersionAtLeast: (version: string) => boolean;
   sendData: (data: string) => void;
   openInvoice: (url: string, callback: (status: 'paid' | 'cancelled' | 'failed' | 'pending') => void) => void;
-  showPopup: (params: { title?: string; message: string; buttons?: Array<{ id?: string; type: 'default' | 'ok' | 'close' | 'cancel' | 'destructive'; text: string }> }) => void;
-  showAlert: (message: string, callback?: () => void) => void;
-  showConfirm: (message: string, callback?: (confirmed: boolean) => void) => void;
-  showScanQrPopup: (params: { text?: string }, callback: (data: string | null) => void) => void;
-  closeScanQrPopup: () => void;
-  readTextFromClipboard: (callback: (data: string | null) => void) => void;
-  requestWriteAccess: (callback: (access: boolean) => void) => void;
-  requestContact: (callback: (contact: { phone_number: string; first_name: string; last_name?: string; user_id?: number } | null) => void) => void;
-  invokeCustomMethod: (method: string, params: any, callback: (data: any) => void) => void;
-  version: string;
-  platform: string;
-  isVersionAtLeast: (version: string) => boolean;
-  sendData: (data: string) => void;
-  openInvoice: (url: string, callback: (status: 'paid' | 'cancelled' | 'failed' | 'pending') => void) => void;
 }
 
 declare global {
