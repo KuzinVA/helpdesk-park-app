@@ -1,68 +1,89 @@
-services:
-  # Backend API (NestJS)
-  - type: web
-    name: helpdesk-park-api
-    env: node
-    plan: starter
-    buildCommand: cd backend && npm ci && npm run build
-    startCommand: cd backend && npm run start:prod
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: DATABASE_URL
-        fromDatabase:
-          name: helpdesk-park-db
-          property: connectionString
-      - key: JWT_SECRET
-        generateValue: true
-      - key: TELEGRAM_BOT_TOKEN
-        sync: false  # будет установлен вручную
-      - key: FRONTEND_URL
-        value: https://helpdesk-park-frontend.onrender.com
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: helpdesk-park-redis
-          property: connectionString
-    healthCheckPath: /api/health
+# 🧹 ВСЕ СЕРВИСЫ RENDER ЗАКОММЕНТИРОВАНЫ
+# Переходим на GitHub Pages для фронтенда
+# Backend не используется (только фронтенд)
 
-  # Frontend (React + Vite)
-  - type: web
-    name: helpdesk-park-frontend
-    env: static
-    plan: starter
-    buildCommand: cd frontend && npm ci && npm run build
-    staticPublishPath: frontend/dist
-    envVars:
-      - key: VITE_API_URL
-        value: https://helpdesk-park-api.onrender.com/api
-      - key: VITE_TELEGRAM_BOT_USERNAME
-        value: helpdeskParkApp_bot
+# services:
+#   # Backend API (NestJS)
+#   - type: web
+#     name: helpdesk-park-api
+#     env: node
+#     plan: starter
+#     buildCommand: cd backend && npm ci && npm run build
+#     startCommand: cd backend && npm run start:prod
+#     envVars:
+#       - key: NODE_ENV
+#         value: production
+#       - key: DATABASE_URL
+#         fromDatabase:
+#           name: helpdesk-park-db
+#           property: connectionString
+#       - key: JWT_SECRET
+#         generateValue: true
+#       - key: TELEGRAM_BOT_TOKEN
+#         sync: false  # будет установлен вручную
+#       - key: FRONTEND_URL
+#         value: https://helpdesk-park-frontend.onrender.com
+#       - key: REDIS_URL
+#         fromService:
+#           type: redis
+#           name: helpdesk-park-redis
+#           property: connectionString
+#     healthCheckPath: /api/health
 
-  # Chat API для Telegram бота
-  - type: web
-    name: helpdesk-park-chat-api
-    env: node
-    plan: starter
-    buildCommand: npm ci
-    startCommand: node chat-api.js
-    envVars:
-      - key: TELEGRAM_BOT_TOKEN
-        sync: false
-      - key: API_URL
-        value: https://helpdesk-park-api.onrender.com/api
-      - key: FRONTEND_URL
-        value: https://helpdesk-park-frontend.onrender.com
+#   # Frontend (React + Vite) - ЗАМЕНЕН НА GITHUB PAGES
+#   - type: web
+#     name: helpdesk-park-frontend
+#     env: static
+#     plan: starter
+#     buildCommand: cd frontend && npm ci && npm run build
+#     staticPublishPath: frontend/dist
+#     envVars:
+#       - key: VITE_API_URL
+#         value: https://helpdesk-park-api.onrender.com/api
+#       - key: VITE_TELEGRAM_BOT_USERNAME
+#         value: helpdeskParkApp_bot
 
-  # Redis для кэширования и очередей
-  - type: redis
-    name: helpdesk-park-redis
-    plan: starter
-    ipAllowList: []
+#   # Chat API для Telegram бота
+#   - type: web
+#     name: helpdesk-park-chat-api
+#     env: node
+#     plan: starter
+#     buildCommand: npm ci
+#     startCommand: node chat-api.js
+#     envVars:
+#       - key: TELEGRAM_BOT_TOKEN
+#         sync: false
+#       - key: API_URL
+#         value: https://helpdesk-park-api.onrender.com/api
+#       - key: FRONTEND_URL
+#         value: https://helpdesk-park-frontend.onrender.com
 
-databases:
-  # PostgreSQL база данных
-  - name: helpdesk-park-db
-    plan: starter
-    databaseName: helpdesk_park
-    user: helpdesk_user
+#   # Redis для кэширования и очередей
+#   - type: redis
+#     name: helpdesk-park-redis
+#     plan: starter
+#     ipAllowList: []
+
+# databases:
+#   # PostgreSQL база данных
+#   - name: helpdesk-park-db
+#     plan: starter
+#     databaseName: helpdesk_park
+#     user: helpdesk_user
+
+# 🎯 ТЕКУЩИЙ СТАТУС:
+# ✅ Frontend: GitHub Pages (https://kuzinva.github.io/helpdesk-park-app/)
+# ✅ Telegram Bot: @helpdeskParkApp_bot
+# ✅ Mini App: Полностью настроен
+# ❌ Backend: Не используется (только фронтенд)
+
+# 📱 ЧТО РАБОТАЕТ:
+# • React приложение на GitHub Pages
+# • Telegram Mini App интеграция
+# • Apple-style дизайн
+# • Haptic Feedback и нативные кнопки
+
+# 🔧 ЕСЛИ ПОНАДОБИТСЯ BACKEND В БУДУЩЕМ:
+# 1. Раскомментировать нужные сервисы
+# 2. Настроить переменные окружения
+# 3. Задеплоить на Render
