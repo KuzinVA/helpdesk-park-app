@@ -15,13 +15,51 @@
     <meta name="theme-color" content="#007AFF" />
     <meta name="color-scheme" content="light dark" />
     
+    <!-- PWA Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Helpdesk Park" />
+    <meta name="msapplication-TileColor" content="#007AFF" />
+    
     <title>🎠 Helpdesk Park - Система управления заявками</title>
+    
+    <!-- Telegram WebApp Script -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Mini App Initialization -->
+    <script>
+      // Инициализация Telegram WebApp
+      let tg = window.Telegram?.WebApp;
+      
+      if (tg) {
+        // Настройка темы
+        tg.setHeaderColor('#007AFF');
+        tg.setBackgroundColor('#F2F2F7');
+        
+        // Уведомление о готовности
+        tg.ready();
+        
+        // Настройка темы
+        tg.onEvent('themeChanged', () => {
+          // Автоматическое переключение темы
+          if (tg.colorScheme === 'dark') {
+            document.documentElement.style.setProperty('--system-background', '#000000');
+            document.documentElement.style.setProperty('--system-secondary-background', '#1C1C1E');
+            document.documentElement.style.setProperty('--label-primary', '#FFFFFF');
+          } else {
+            document.documentElement.style.setProperty('--system-background', '#F2F2F7');
+            document.documentElement.style.setProperty('--system-secondary-background', '#FFFFFF');
+            document.documentElement.style.setProperty('--label-primary', '#000000');
+          }
+        });
+        
+        console.log('✅ Telegram WebApp инициализирован');
+      } else {
+        console.log('⚠️ Telegram WebApp не доступен - открыто в обычном браузере');
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    
-    <!-- Telegram WebApp Script -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
   </body>
 </html>

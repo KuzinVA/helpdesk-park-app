@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
+import { useTelegram } from './hooks/useTelegram';
 import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
@@ -11,14 +12,15 @@ import ProfilePage from './pages/ProfilePage';
 import StatsPage from './pages/StatsPage';
 import NotificationProvider from './components/NotificationProvider';
 
-// 🎨 Mobile-first App с Apple-style дизайном
+// 🎨 Mobile-first App с Apple-style дизайном и Mini App интеграцией
 const App: React.FC = () => {
   const { isAuthenticated } = useAuthStore();
+  const { isTelegramApp } = useTelegram();
 
   return (
     <NotificationProvider>
       <Router>
-        <div className="App bg-system-background min-h-screen">
+        <div className={`App bg-system-background min-h-screen ${isTelegramApp ? 'telegram-webapp' : ''}`}>
           <Routes>
             {/* Public Routes */}
             <Route 

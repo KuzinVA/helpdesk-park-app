@@ -92,6 +92,142 @@ body {
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
+/* Mini App Components */
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 50;
+  backdrop-filter: blur(10px);
+}
+
+.mobile-menu {
+  position: absolute;
+  right: 16px;
+  top: 80px;
+  background: var(--system-secondary-background);
+  border-radius: 16px;
+  padding: 16px;
+  min-width: 200px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mobile-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--separator-opaque);
+}
+
+.mobile-menu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mobile-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: transparent;
+  border: none;
+  color: var(--label-primary);
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.mobile-menu-item:hover {
+  background: var(--system-fill-secondary);
+}
+
+.mobile-menu-item:active {
+  transform: scale(0.98);
+}
+
+/* Mini App Status Indicator */
+.mini-app-indicator {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  background: var(--system-green);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 40;
+  box-shadow: 0 2px 8px rgba(52, 199, 89, 0.3);
+}
+
+/* Enhanced Mobile Navigation */
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  border-radius: 12px;
+  background: transparent;
+  border: none;
+  color: var(--label-tertiary);
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-height: 60px;
+  position: relative;
+}
+
+.mobile-nav-item:hover {
+  color: var(--label-primary);
+  background: var(--system-fill-secondary);
+}
+
+.mobile-nav-item.active {
+  color: var(--system-blue);
+  background: var(--system-fill-secondary);
+}
+
+.mobile-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background: var(--system-blue);
+  border-radius: 50%;
+}
+
+/* Telegram WebApp Integration */
+.telegram-webapp {
+  /* Скрываем элементы браузера в Mini App */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.telegram-webapp .mobile-header {
+  /* Адаптируем под Telegram WebApp */
+  padding-top: env(safe-area-inset-top);
+}
+
+.telegram-webapp .mobile-nav {
+  /* Адаптируем под Telegram WebApp */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 .apple-button-primary {
   background: linear-gradient(135deg, var(--system-blue), #0056CC);
   color: white;

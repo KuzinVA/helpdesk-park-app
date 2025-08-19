@@ -1,4 +1,4 @@
-import React, { useState, ReactNode } from 'react';
+import React, { useState, ReactNode, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { useTelegram } from '../hooks/useTelegram';
@@ -7,13 +7,45 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-// 🎨 Mobile-first Layout с Apple-style дизайном
+// 🎨 Mobile-first Layout с Apple-style дизайном и Mini App интеграцией
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuthStore();
-  const { hapticFeedback } = useTelegram();
+  const { 
+    hapticFeedback, 
+    isTelegramApp, 
+    showBackButton, 
+    hideBackButton,
+    showMainButton,
+    hideMainButton 
+  } = useTelegram();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Настройка Mini App навигации
+  useEffect(() => {
+    if (isTelegramApp) {
+      // Показываем кнопку "Назад" для всех страниц кроме главной
+      if (location.pathname !== '/dashboard') {
+        showBackButton(() => {
+          navigate(-1);
+          hapticFeedback?.impactOccurred('light');
+        });
+      } else {
+        hideBackButton();
+      }
+
+      // Показываем главную кнопку для создания заявки
+      if (location.pathname === '/tickets/create') {
+        showMainButton('📝 Создать заявку', () => {
+          // Логика создания заявки
+          hapticFeedback?.impactOccurred('medium');
+        });
+      } else {
+        hideMainButton();
+      }
+    }
+  }, [location.pathname, isTelegramApp, showBackButton, hideBackButton, showMainButton, hideMainButton, navigate, hapticFeedback]);
 
   const handleNavigation = (path: string) => {
     if (hapticFeedback) {
@@ -102,11 +134,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
           <button
             onClick={() => handleNavigation('/tickets/create')}
-            className="mobile-nav-item"
+            className={`mobile-nav-item ${isActive('/tickets/create') ? 'active' : ''}`}
           >
-            <div className="w-12 h-12 bg-system-blue rounded-full flex items-center justify-center mb-1">
-              <span className="text-white text-xl">+</span>
-            </div>
+            <span className="text-xl mb-1">➕</span>
             <span className="apple-text-caption-2">Создать</span>
           </button>
 
@@ -128,51 +158,75 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </nav>
 
+      {/* Mini App Status Indicator */}
+      {isTelegramApp && (
+        <div className="fixed top-4 right-4 bg-green-500 text-white px-2 py-1 rounded-full text-xs">
+          📱 Mini App
+        </div>
+      )}
+
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50" onClick={() => setIsMenuOpen(false)}>
-          <div className="absolute right-4 top-20 bg-system-secondary-background rounded-16 p-4 min-w-48 shadow-lg">
-            <div className="space-y-2">
+        <div className="mobile-menu-overlay">
+          <div className="mobile-menu">
+            <div className="mobile-menu-header">
+              <h3 className="apple-text-title-3 text-white">Меню</h3>
               <button
-                onClick={() => handleNavigation('/profile')}
-                className="w-full text-left p-3 rounded-12 hover:bg-system-fill-secondary apple-transition"
+                onClick={() => setIsMenuOpen(false)}
+                className="text-white text-2xl"
               >
-                <div className="flex items-center space-x-3">
-                  <span>👤</span>
-                  <span className="apple-text-body">Профиль</span>
-                </div>
+                ✕
+              </button>
+            </div>
+            
+            <div className="mobile-menu-items">
+              <button
+                onClick={() => handleNavigation('/dashboard')}
+                className="mobile-menu-item"
+              >
+                🏠 Дашборд
+              </button>
+              
+              <button
+                onClick={() => handleNavigation('/tickets')}
+                className="mobile-menu-item"
+              >
+                📋 Заявки
+              </button>
+              
+              <button
+                onClick={() => handleNavigation('/tickets/create')}
+                className="mobile-menu-item"
+              >
+                ➕ Создать заявку
               </button>
               
               <button
                 onClick={() => handleNavigation('/stats')}
-                className="w-full text-left p-3 rounded-12 hover:bg-system-fill-secondary apple-transition"
+                className="mobile-menu-item"
               >
-                <div className="flex items-center space-x-3">
-                  <span>📊</span>
-                  <span className="apple-text-body">Статистика</span>
-                </div>
+                📊 Статистика
               </button>
               
-              <div className="border-t border-separator-opaque my-2"></div>
+              <button
+                onClick={() => handleNavigation('/profile')}
+                className="mobile-menu-item"
+              >
+                👤 Профиль
+              </button>
+              
+              <div className="border-t border-white/20 my-2"></div>
               
               <button
                 onClick={handleLogout}
-                className="w-full text-left p-3 rounded-12 hover:bg-system-fill-secondary apple-transition text-system-red"
+                className="mobile-menu-item text-red-400"
               >
-                <div className="flex items-center space-x-3">
-                  <span>🚪</span>
-                  <span className="apple-text-body">Выйти</span>
-                </div>
+                🚪 Выйти
               </button>
             </div>
           </div>
         </div>
       )}
-
-      {/* Floating Action Button */}
-      <div className="fab" onClick={() => handleNavigation('/tickets/create')}>
-        <span>+</span>
-      </div>
     </div>
   );
 };
