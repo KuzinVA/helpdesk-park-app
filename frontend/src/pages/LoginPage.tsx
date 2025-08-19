@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { useTelegram } from '../hooks/useTelegram';
 
-// 🎨 Mobile-first Apple-style дизайн обновлен
+// 🎨 Mobile-first Apple-style дизайн обновлен - FORCE DEPLOY v3.1.0
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, mockLogin } = useAuthStore();
