@@ -4,7 +4,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@/common/prisma/prisma.service';
 import { NotificationsService } from './notifications.service';
-import { TelegramService } from '@/telegram/telegram.service';
+import { UnifiedTelegramService } from '@/telegram/unified-telegram.service';
 
 @Injectable()
 @Processor('notifications')
@@ -14,7 +14,7 @@ export class NotificationsProcessor {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
-    private readonly telegramService: TelegramService,
+    private readonly telegramService: UnifiedTelegramService,
   ) {}
 
   @Process('send')

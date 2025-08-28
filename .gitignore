@@ -7,6 +7,7 @@ yarn-error.log*
 # Production builds
 dist/
 build/
+frontend/dist/
 
 # Environment variables
 .env
@@ -109,3 +110,39 @@ Thumbs.db
 # Prisma
 prisma/migrations/
 python-mcp/
+
+# Demo and test files
+*-demo.html
+test-*.html
+
+# MCP files (not integrated)
+mcp-*.js
+mcp-config*.json
+mcp-package.json
+
+# Chat API files (not integrated)
+chat-*.js
+chat-api-*.js
+
+# Setup files (keep only final version)
+setup-*.js
+!setup-miniapp-final.js
+
+# Git
+.git/
+.gitignore
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

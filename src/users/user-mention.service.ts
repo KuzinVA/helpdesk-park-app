@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@/common/prisma/prisma.service';
-import { TelegramService } from '@/telegram/telegram.service';
+import { UnifiedTelegramService } from '@/telegram/unified-telegram.service';
 import { MentionUserDto, SearchUsersDto, ChatMembersDto } from './dto/mention-user.dto';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class UserMentionService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly telegramService: TelegramService,
+    private readonly telegramService: UnifiedTelegramService,
   ) {}
 
   /**

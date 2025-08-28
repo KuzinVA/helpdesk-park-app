@@ -11,9 +11,4 @@ export class HealthController {
       version: '1.0.0',
     };
   }
-
-  @Get('api/health')
-  apiHealth() {
-    return this.health();
-  }
 }

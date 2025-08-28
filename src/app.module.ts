@@ -6,11 +6,9 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TicketsModule } from './tickets/tickets.module';
-import { ServicesModule } from './services/services.module';
-import { LocationsModule } from './locations/locations.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { StatsModule } from './stats/stats.module';
-import { TelegramModule } from './telegram/telegram.module';
+import { UnifiedTelegramModule } from './telegram/unified-telegram.module';
 import { CommonModule } from './common/common.module';
 import { HealthController } from './health/health.controller';
 
@@ -33,11 +31,9 @@ import { HealthController } from './health/health.controller';
     AuthModule,
     UsersModule,
     TicketsModule,
-    ServicesModule,
-    LocationsModule,
     NotificationsModule,
     StatsModule,
-    TelegramModule,
+    UnifiedTelegramModule,
     CommonModule,
   ],
   controllers: [HealthController],

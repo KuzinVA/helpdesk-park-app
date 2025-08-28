@@ -5,12 +5,12 @@ import { NotificationsService } from './notifications.service';
 import { NotificationsController } from './notifications.controller';
 import { NotificationsProcessor } from './notifications.processor';
 import { CommonModule } from '@/common/common.module';
-import { TelegramModule } from '@/telegram/telegram.module';
+import { UnifiedTelegramModule } from '@/telegram/unified-telegram.module';
 
 @Module({
   imports: [
     CommonModule,
-    TelegramModule,
+    UnifiedTelegramModule,
     BullModule.registerQueue({
       name: 'notifications',
     }),
