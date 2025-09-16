@@ -76,6 +76,7 @@ npm run start:dev
 
 ## 📚 **Документация**
 
+- [🚀 Руководство по запуску для других](SETUP_FOR_OTHERS.md)
 - [📋 Тестирование Mini App](MINI_APP_TEST.md)
 - [🔕 Отключение Render уведомлений](RENDER_DISABLE_NOTIFICATIONS.md)
 - [🚀 GitHub Pages настройка](GITHUB_PAGES_SETUP.md)
