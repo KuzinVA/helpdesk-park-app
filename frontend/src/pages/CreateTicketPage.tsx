@@ -235,17 +235,6 @@ const CreateTicketPage: React.FC = () => {
         </button>
       </form>
 
-      {/* Debug Info (только в разработке) */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="p-4 bg-system-fill-secondary rounded-12">
-          <h3 className="apple-text-headline mb-2">Debug Info:</h3>
-          <p className="apple-text-caption-1">Chat ID: {chatId || 'Не найден'}</p>
-          <p className="apple-text-caption-1">Chat Title: {chatTitle || 'Не найден'}</p>
-          <p className="apple-text-caption-1">Is Group: {isGroupChat ? 'Да' : 'Нет'}</p>
-          <p className="apple-text-caption-1">User: {webApp?.initDataUnsafe?.user?.first_name || 'Не найден'}</p>
-          <p className="apple-text-caption-1">Selected Assignees: {formData.assignees.length}</p>
-        </div>
-      )}
     </div>
   );
 };
