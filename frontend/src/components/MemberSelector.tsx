@@ -26,11 +26,9 @@ export const MemberSelector: React.FC<MemberSelectorProps> = ({
   
   const {
     members,
-    admins,
     loading,
     error,
     getDisplayName,
-    getFullDisplayName,
     isAdmin,
     searchMembers
   } = useChatMembers({ chatId, autoFetch: true });
@@ -60,19 +58,6 @@ export const MemberSelector: React.FC<MemberSelectorProps> = ({
   // Удаление выбранного участника
   const removeMember = (memberId: number) => {
     onMembersChange(selectedMembers.filter(m => m.id !== memberId));
-  };
-
-  // Получить отображаемый текст
-  const getDisplayText = () => {
-    if (selectedMembers.length === 0) {
-      return placeholder;
-    }
-    
-    if (selectedMembers.length === 1) {
-      return getDisplayName(selectedMembers[0]);
-    }
-    
-    return `Выбрано ${selectedMembers.length} участников`;
   };
 
   // Фильтрация участников по поиску

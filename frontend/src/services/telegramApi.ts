@@ -57,8 +57,6 @@ export interface TelegramChat {
   slow_mode_delay?: number;
   message_auto_delete_time?: number;
   has_aggressive_anti_spam_enabled?: boolean;
-  has_hidden_members?: boolean;
-  has_protected_content?: boolean;
   sticker_set_name?: string;
   can_set_sticker_set?: boolean;
   linked_chat_id?: number;
